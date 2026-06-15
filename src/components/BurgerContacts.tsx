@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, Modal, ScrollView, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Modal, ScrollView, StyleSheet, Animated, Dimensions, Easing } from 'react-native';
 import { stores } from '@/stores';
 import { hooks } from '@/hooks';
 import { constants } from '@/constants';
 import Svg, { Path, Circle, Line, Polyline, Rect } from 'react-native-svg';
 import logoImage from '../assets/images/logo_drawer.png';
 
-const { width, height } = Dimensions.get('window');
-const DRAWER_WIDTH = width * 0.72;
+const { width } = Dimensions.get('window');
+const DRAWER_WIDTH = width * 0.76;
 
 // Custom Outline Icons matching screenshot
 const HomeIcon = ({ color }: { color: string }) => (
@@ -79,25 +79,54 @@ export const BurgerContacts: React.FC = () => {
   const { visible, setVisible } = stores.useModalStore();
   const { navigate, location } = hooks.useRouter();
   const { showToast } = stores.useToastStore();
+  const { user, isLoggedIn } = stores.useAuthStore();
 
+  const [active, setActive] = React.useState(false);
   const slideAnim = React.useRef(new Animated.Value(-DRAWER_WIDTH)).current;
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   React.useEffect(() => {
     if (visible) {
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        tension: 50,
-        friction: 8,
-        useNativeDriver: true,
-      }).start();
+      setActive(true);
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 280,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 280,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        })
+      ]).start();
     } else {
-      Animated.timing(slideAnim, {
-        toValue: -DRAWER_WIDTH,
-        duration: 180,
-        useNativeDriver: true,
-      }).start();
+      if (active) {
+        Animated.parallel([
+          Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 200,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnim, {
+            toValue: -DRAWER_WIDTH,
+            duration: 200,
+            easing: Easing.out(Easing.ease),
+            useNativeDriver: true,
+          })
+        ]).start(() => {
+          setActive(false);
+        });
+      }
     }
   }, [visible]);
+
+  const handleClose = () => {
+    setVisible(false);
+  };
 
   const menuItems = [
     { label: 'Home', route: constants.routes.HOME, icon: HomeIcon },
@@ -112,19 +141,24 @@ export const BurgerContacts: React.FC = () => {
   ];
 
   const handlePress = (route: string) => {
-    setVisible(false);
-    if (route === 'wallet') {
-      showToast('Veg Dash Wallet is currently at full balance! ₹250');
-    } else {
-      navigate(route);
-    }
+    handleClose();
+    // Delay navigation slightly so the close animation runs completely first
+    setTimeout(() => {
+      if (route === 'wallet') {
+        showToast('Veg Dash Wallet is currently at full balance! ₹250');
+      } else {
+        navigate(route);
+      }
+    }, 220);
   };
 
   return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={() => setVisible(false)}>
+    <Modal visible={active} transparent animationType="none" onRequestClose={handleClose}>
       <View style={styles.overlay}>
-        {/* Transparent Backdrop to close */}
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setVisible(false)} />
+        {/* Animated Backdrop */}
+        <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
+          <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={handleClose} />
+        </Animated.View>
 
         {/* Animated Left Side Drawer */}
         <Animated.View style={[styles.drawer, { transform: [{ translateX: slideAnim }] }]}>
@@ -132,6 +166,36 @@ export const BurgerContacts: React.FC = () => {
           <View style={styles.logoContainer}>
             <Image source={logoImage} style={styles.logo} resizeMode="contain" />
           </View>
+
+          {/* User Profile Info Card */}
+          <View style={styles.profileHeader}>
+            <View style={styles.avatarContainer}>
+              {isLoggedIn && user?.avatar ? (
+                <Image source={{ uri: user.avatar }} style={styles.avatar} />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Text style={styles.avatarLetter}>
+                    {isLoggedIn && user?.name ? user.name.charAt(0).toUpperCase() : '👤'}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName} numberOfLines={1}>
+                {isLoggedIn ? user?.name : 'Guest User'}
+              </Text>
+              <Text style={styles.profileSubText} numberOfLines={1}>
+                {isLoggedIn ? user?.email : 'Login to order organic veg foods'}
+              </Text>
+              {isLoggedIn && (
+                <View style={styles.vegBadge}>
+                  <Text style={styles.vegBadgeText}>🟢 PURE VEG</Text>
+                </View>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.divider} />
 
           {/* Menu Items */}
           <ScrollView contentContainerStyle={styles.menuList} showsVerticalScrollIndicator={false}>
@@ -141,15 +205,23 @@ export const BurgerContacts: React.FC = () => {
               const isItemActive = isHomeActive || (item.route !== 'wallet' && location.pathname === item.route);
 
               return (
-                <TouchableOpacity
-                  key={item.label}
-                  style={[styles.menuItem, isItemActive && styles.menuItemActive]}
-                  onPress={() => handlePress(item.route)}
-                  activeOpacity={0.8}
-                >
-                  <Icon color="#FFFFFF" />
-                  <Text style={styles.menuItemText}>{item.label}</Text>
-                </TouchableOpacity>
+                <View key={item.label}>
+                  <TouchableOpacity
+                    style={[styles.menuItem, isItemActive && styles.menuItemActive]}
+                    onPress={() => handlePress(item.route)}
+                    activeOpacity={0.7}
+                  >
+                    <Icon color="#FFFFFF" />
+                    <Text style={styles.menuItemText}>{item.label}</Text>
+                    {isItemActive && (
+                      <View style={styles.activeIndicator}>
+                        <Svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke="#FFD600" strokeWidth={3}>
+                          <Polyline points="9 18 15 12 9 6" />
+                        </Svg>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </View>
               );
             })}
           </ScrollView>
@@ -171,25 +243,103 @@ const styles = StyleSheet.create({
     width: DRAWER_WIDTH,
     height: '100%',
     backgroundColor: '#0F5B35',
-    paddingTop: 60,
+    paddingTop: 50,
     paddingBottom: 25,
     paddingHorizontal: 16,
-    borderTopRightRadius: 24,
-    borderBottomRightRadius: 24,
+    borderTopRightRadius: 28,
+    borderBottomRightRadius: 28,
     elevation: 16,
     shadowColor: '#000',
     shadowOpacity: 0.3,
-    shadowRadius: 12,
-    shadowOffset: { width: 4, height: 0 },
+    shadowRadius: 16,
+    shadowOffset: { width: 6, height: 0 },
   },
   logoContainer: {
     paddingLeft: 12,
-    marginBottom: 15,
+    marginBottom: 8,
     marginTop: 10,
   },
-  logo: { width: 260, height: 104 },
+  logo: { width: 220, height: 88 },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 16,
+    marginVertical: 10,
+    gap: 12,
+  },
+  avatarContainer: {
+    position: 'relative',
+  },
+  avatarPlaceholder: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#FFD600',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarLetter: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0F5B35',
+    fontFamily: 'Outfit',
+  },
+  avatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+  },
+  onlineDot: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#4CAF50',
+    borderWidth: 2,
+    borderColor: '#0F5B35',
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: 'Outfit',
+  },
+  profileSubText: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.65)',
+    fontFamily: 'Outfit',
+    marginTop: 1,
+  },
+  vegBadge: {
+    marginTop: 4,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  vegBadgeText: {
+    fontSize: 8,
+    fontWeight: '800',
+    color: '#81C784',
+    letterSpacing: 0.3,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: 10,
+    marginHorizontal: 4,
+  },
   menuList: {
-    gap: 8,
+    gap: 6,
   },
   menuItem: {
     flexDirection: 'row',
@@ -198,15 +348,22 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     gap: 14,
+    borderLeftWidth: 4,
+    borderLeftColor: 'transparent',
   },
   menuItemActive: {
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderLeftColor: '#FFD600',
   },
   menuItemText: {
     fontSize: 15,
     fontWeight: '700',
     color: '#FFFFFF',
     fontFamily: 'Outfit',
+  },
+  activeIndicator: {
+    marginLeft: 'auto',
+    paddingRight: 4,
   },
   footer: {
     paddingTop: 15,

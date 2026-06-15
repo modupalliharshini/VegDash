@@ -423,10 +423,19 @@ export const Home: React.FC = () => {
             <View style={styles.carouselSlide}>
               <View style={styles.bannerPromoBody}>
                 <View style={styles.bannerPromoLeft}>
+                  <View style={styles.bannerPromoBadge}>
+                    <Text style={styles.bannerPromoBadgeText}>🥗 Fresh & Organic</Text>
+                  </View>
                   <Text style={styles.bannerPromoSubtitle}>ITEMS AT</Text>
                   <Animated.View style={{ transform: [{ scale: textScale }] }}>
                     <Text style={styles.bannerPromoTitleText}>50% OFF</Text>
                   </Animated.View>
+                  <Text style={styles.bannerPromoDesc} numberOfLines={2}>
+                    Crisp salads prepared fresh daily with handpicked organic veggies.
+                  </Text>
+                  <View style={styles.bannerPromoCodeContainer}>
+                    <Text style={styles.bannerPromoCodeText}>Code: VEGDASH50</Text>
+                  </View>
                   <TouchableOpacity style={styles.bannerOrderBtn} onPress={() => navigate(constants.routes.SHOP)}>
                     <Text style={styles.bannerOrderBtnText}>Order now ➔</Text>
                   </TouchableOpacity>
@@ -456,10 +465,19 @@ export const Home: React.FC = () => {
             <View style={styles.carouselSlide}>
               <View style={styles.bannerPromoBody}>
                 <View style={styles.bannerPromoLeft}>
+                  <View style={styles.bannerPromoBadge}>
+                    <Text style={styles.bannerPromoBadgeText}>🍛 Premium Taste</Text>
+                  </View>
                   <Text style={styles.bannerPromoSubtitle}>FLAT ₹100 OFF</Text>
                   <Animated.View style={{ transform: [{ scale: textScale }] }}>
                     <Text style={styles.bannerPromoTitleText2}>MIN ₹250</Text>
                   </Animated.View>
+                  <Text style={styles.bannerPromoDesc} numberOfLines={2}>
+                    Aromatic long-grain basmati biryanis & rich, fresh paneer curries.
+                  </Text>
+                  <View style={styles.bannerPromoCodeContainer}>
+                    <Text style={styles.bannerPromoCodeText}>Code: VEGDASH100</Text>
+                  </View>
                   <TouchableOpacity style={styles.bannerOrderBtn} onPress={() => navigate(constants.routes.MY_PROMOCODES)}>
                     <Text style={styles.bannerOrderBtnText}>Grab Offer ➔</Text>
                   </TouchableOpacity>
@@ -489,10 +507,19 @@ export const Home: React.FC = () => {
             <View style={styles.carouselSlide}>
               <View style={styles.bannerPromoBody}>
                 <View style={styles.bannerPromoLeft}>
+                  <View style={styles.bannerPromoBadge}>
+                    <Text style={styles.bannerPromoBadgeText}>🟢 Strict Satvik</Text>
+                  </View>
                   <Text style={styles.bannerPromoSubtitle}>JAIN SPECIAL</Text>
                   <Animated.View style={{ transform: [{ scale: textScale }] }}>
                     <Text style={styles.bannerPromoTitleText2}>25% OFF</Text>
                   </Animated.View>
+                  <Text style={styles.bannerPromoDesc} numberOfLines={2}>
+                    Prepared without root veg, onion or garlic. Traditional Jain rules.
+                  </Text>
+                  <View style={styles.bannerPromoCodeContainer}>
+                    <Text style={styles.bannerPromoCodeText}>Code: JAIN25</Text>
+                  </View>
                   <TouchableOpacity style={styles.bannerOrderBtn} onPress={() => navigate(constants.routes.SHOP, { state: { category: 'Jain Food' } })}>
                     <Text style={styles.bannerOrderBtnText}>Explore Menu ➔</Text>
                   </TouchableOpacity>
@@ -876,14 +903,29 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   bannerPromoLeft: {
-    width: '52%',
+    width: '55%',
     justifyContent: 'center',
-    paddingBottom: 40,
+    paddingVertical: 10,
+  },
+  bannerPromoBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+  },
+  bannerPromoBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    fontFamily: 'Outfit',
+    letterSpacing: 0.3,
   },
   bannerPromoSubtitle: {
     fontFamily: 'Outfit',
     fontWeight: '900',
-    fontSize: 20,
+    fontSize: 16,
     color: '#FFFFFF',
     letterSpacing: 0.5,
     textShadowColor: 'rgba(0,0,0,0.15)',
@@ -893,10 +935,10 @@ const styles = StyleSheet.create({
   bannerPromoTitleText: {
     fontFamily: 'Outfit',
     fontWeight: '900',
-    fontSize: 38,
+    fontSize: 34,
     color: '#FFF9C4',
     fontStyle: 'italic',
-    marginTop: 2,
+    marginTop: 1,
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 4,
@@ -904,21 +946,46 @@ const styles = StyleSheet.create({
   bannerPromoTitleText2: {
     fontFamily: 'Outfit',
     fontWeight: '900',
-    fontSize: 32,
+    fontSize: 28,
     color: '#FFF9C4',
     fontStyle: 'italic',
-    marginTop: 2,
+    marginTop: 1,
     textShadowColor: 'rgba(0,0,0,0.3)',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 4,
   },
+  bannerPromoDesc: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontFamily: 'Outfit',
+    marginTop: 4,
+    lineHeight: 15,
+  },
+  bannerPromoCodeContainer: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: 'rgba(255, 255, 255, 0.45)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  bannerPromoCodeText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#FFF9C4',
+    fontFamily: 'Outfit',
+    letterSpacing: 0.5,
+  },
   bannerOrderBtn: {
     backgroundColor: '#1E2022',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
     alignSelf: 'flex-start',
-    marginTop: 18,
+    marginTop: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
