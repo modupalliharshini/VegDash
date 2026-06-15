@@ -1,31 +1,34 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Line, Polyline } from 'react-native-svg';
 import { hooks } from '@/hooks';
 import { constants } from '@/constants';
 import { components } from '@/components';
 import { authService } from '@/services/authService';
+import { useToastStore } from '@/stores/useToastStore';
 
 export const ForgetPassword: React.FC = () => {
   const { navigate } = hooks.useRouter();
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
-    if (!phone.trim()) {
-      Alert.alert('Error', 'Please enter your registered phone number');
+    const { showToast } = useToastStore.getState();
+
+    if (!email.trim()) {
+      showToast('Please enter your registered email address', 'error');
       return;
     }
 
     setLoading(true);
     try {
-      await authService.sendOTP(phone);
-      Alert.alert('OTP Sent', `Verification code sent to ${phone}`);
+      await authService.sendPasswordResetEmail(email);
+      showToast(`Verification code sent to ${email}`, 'success');
       navigate(constants.routes.CONFIRMATION_CODE, {
-        state: { phone, flow: 'forgot_password' }
+        state: { email, flow: 'forgot_password' }
       });
     } catch (err: any) {
-      Alert.alert('Error', err.response?.data?.message || err.message || 'Failed to send verification code');
+      showToast(err.response?.data?.message || err.message || 'Failed to send recovery email', 'error');
     } finally {
       setLoading(false);
     }
@@ -46,18 +49,18 @@ export const ForgetPassword: React.FC = () => {
       <View style={styles.content}>
         <Text style={styles.title}>Forgot Password?</Text>
         <Text style={styles.subtitle}>
-          Enter your registered phone number below to receive verification code to reset password.
+          Enter your registered email address below to receive a verification code to reset password.
         </Text>
 
         <components.Input
-          placeholder="Phone number"
-          value={phone}
-          onChangeText={setPhone}
+          placeholder="Email address"
+          value={email}
+          onChangeText={setEmail}
           containerStyle={{ marginBottom: 25 }}
         />
 
         <TouchableOpacity style={styles.btn} onPress={loading ? undefined : handleSend}>
-          <Text style={styles.btnText}>{loading ? 'Sending...' : 'Send Reset Code'}</Text>
+          <Text style={styles.btnText}>{loading ? 'Sending...' : 'Send Verification Code'}</Text>
         </TouchableOpacity>
       </View>
     </components.SafeAreaView>

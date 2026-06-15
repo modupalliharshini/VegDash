@@ -6,6 +6,7 @@ import { constants } from '@/constants';
 import { components } from '@/components';
 import logoImage from '../assets/images/logo.png';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToastStore } from '@/stores/useToastStore';
 
 export const SignIn: React.FC = () => {
   const { navigate } = hooks.useRouter();
@@ -29,7 +30,7 @@ export const SignIn: React.FC = () => {
       await login({ email: form.email, password: form.password });
       navigate(constants.routes.HOME, { replace: true });
     } catch (err: any) {
-      Alert.alert('Login Failed', err.message || 'Check your credentials and try again.');
+      useToastStore.getState().showToast(err.message || 'Check your credentials and try again.', 'error');
     }
   };
 

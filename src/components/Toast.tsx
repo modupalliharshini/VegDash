@@ -3,7 +3,7 @@ import { Text, Animated, TouchableOpacity } from 'react-native';
 import { useToastStore } from '@/stores/useToastStore';
 
 export const Toast: React.FC = () => {
-  const { message, visible, hideToast } = useToastStore();
+  const { message, visible, type, hideToast } = useToastStore();
   const translateY = useRef(new Animated.Value(-150)).current;
 
   useEffect(() => {
@@ -48,7 +48,9 @@ export const Toast: React.FC = () => {
         transform: [{ translateY }],
       }}
     >
-      <Text style={{ fontSize: 16, marginRight: 8 }}>✅</Text>
+      <Text style={{ fontSize: 16, marginRight: 8 }}>
+        {type === 'error' ? '❌' : type === 'info' ? 'ℹ️' : '✅'}
+      </Text>
       <Text
         style={{
           fontSize: 14,

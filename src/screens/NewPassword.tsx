@@ -10,8 +10,7 @@ import { authService } from '@/services/authService';
 export const NewPassword: React.FC = () => {
   const { navigate, params } = hooks.useRouter();
   const { showToast } = stores.useToastStore();
-  const phone = (params as any)?.phone || '';
-  const code = (params as any)?.code || '';
+  const email = (params as any)?.email || '';
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,26 +18,24 @@ export const NewPassword: React.FC = () => {
 
   const handleSave = async () => {
     if (!password.trim() || password.length < 6) {
-      showToast('Password must be at least 6 characters!');
+      showToast('Password must be at least 6 characters!', 'error');
       return;
     }
     if (password !== confirmPassword) {
-      showToast('Passwords do not match!');
+      showToast('Passwords do not match!', 'error');
       return;
     }
 
     setLoading(true);
     try {
       await authService.resetPassword({
-        phone,
-        otp: code,
+        email,
         newPassword: password,
       });
-      Alert.alert('Success', 'Password has been reset successfully. Please sign in with your new password.', [
-        { text: 'OK', onPress: () => navigate(constants.routes.SIGN_IN) }
-      ]);
+      showToast('Password has been reset successfully. Please sign in.', 'success');
+      navigate(constants.routes.SIGN_IN);
     } catch (err: any) {
-      Alert.alert('Reset Failed', err.response?.data?.message || err.message || 'Failed to reset password');
+      showToast(err.response?.data?.message || err.message || 'Failed to reset password', 'error');
     } finally {
       setLoading(false);
     }

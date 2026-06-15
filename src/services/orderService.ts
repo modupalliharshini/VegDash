@@ -29,6 +29,18 @@ export interface VerifyPaymentPayload {
 
 const LOCAL_ORDERS_KEY = 'vegdash_local_orders';
 
+const sanitizeOrderDriver = (driver: any) => {
+  if (!driver) return { name: 'Rohan Sharma', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150' };
+  if (typeof driver === 'string') {
+    try {
+      return JSON.parse(driver);
+    } catch (_) {
+      return { name: driver, avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150' };
+    }
+  }
+  return driver;
+};
+
 const getLocalOrders = async (): Promise<any[]> => {
   try {
     const raw = await AsyncStorage.getItem(LOCAL_ORDERS_KEY);
@@ -143,23 +155,36 @@ export const orderService = {
       paymentId: '',
       orderStatus: 'placed',
       deliveryAddress: payload.deliveryAddress,
-      driver: {
+      driver: JSON.stringify({
         name: 'Rohan Sharma',
         avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150',
-      },
+      }),
       statusHistory: [{ status: 'placed', timestamp: new Date().toISOString() }],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
     try {
-      await supabase.from('orders').insert(orderRow);
-    } catch (_) {}
+      const { error: insertErr } = await supabase.from('orders').insert(orderRow);
+      if (insertErr) {
+        console.error('Supabase Order Insertion Error:', insertErr.message, insertErr.details);
+      }
+    } catch (err: any) {
+      console.error('Supabase Order Insertion Exception:', err);
+    }
+
+    const localOrderRow = {
+      ...orderRow,
+      driver: {
+        name: 'Rohan Sharma',
+        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150',
+      }
+    };
 
     const local = await getLocalOrders();
-    await saveLocalOrders([orderRow, ...local]);
+    await saveLocalOrders([localOrderRow, ...local]);
 
-    return orderRow;
+    return localOrderRow;
   },
 
   async verifyPayment(payload: VerifyPaymentPayload) {
@@ -236,6 +261,7 @@ export const orderService = {
 
       return {
         ...simulated,
+        driver: sanitizeOrderDriver(simulated.driver),
         items: itemsPopulated,
         restaurant: res ? {
           _id: res.id,
@@ -273,6 +299,7 @@ export const orderService = {
     }
 
     const simulated = simulateOrderStatus(dbOrder);
+    simulated.driver = sanitizeOrderDriver(simulated.driver);
     const res = popularRestaurants.find(r => r.id === simulated.restaurant);
     if (res) {
       simulated.restaurant = {

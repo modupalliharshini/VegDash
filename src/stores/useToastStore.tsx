@@ -3,7 +3,8 @@ import {create} from 'zustand';
 interface ToastState {
   message: string;
   visible: boolean;
-  showToast: (message: string) => void;
+  type?: 'success' | 'error' | 'info';
+  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
   hideToast: () => void;
 }
 
@@ -13,8 +14,9 @@ let clearTimer: ReturnType<typeof setTimeout> | null = null;
 export const useToastStore = create<ToastState>((set, get) => ({
   message: '',
   visible: false,
+  type: 'success',
 
-  showToast: (message: string) => {
+  showToast: (message: string, type: 'success' | 'error' | 'info' = 'success') => {
     if (hideTimer) {
       clearTimeout(hideTimer);
       hideTimer = null;
@@ -24,7 +26,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
       clearTimer = null;
     }
 
-    set({message, visible: true});
+    set({ message, visible: true, type });
 
     hideTimer = setTimeout(() => {
       get().hideToast();
@@ -37,10 +39,10 @@ export const useToastStore = create<ToastState>((set, get) => ({
       hideTimer = null;
     }
 
-    set({visible: false});
+    set({ visible: false });
 
     clearTimer = setTimeout(() => {
-      set({message: ''});
+      set({ message: '', type: 'success' });
     }, 500);
   },
 }));

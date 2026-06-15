@@ -6,7 +6,8 @@ import { constants } from '@/constants';
 import { components } from '@/components';
 
 export const ForgotPasswordSentEmail: React.FC = () => {
-  const { navigate } = hooks.useRouter();
+  const { navigate, params } = hooks.useRouter();
+  const email = (params as any)?.email || '';
 
   return (
     <components.SafeAreaView>
@@ -24,14 +25,14 @@ export const ForgotPasswordSentEmail: React.FC = () => {
         <Text style={styles.icon}>✉️</Text>
         <Text style={styles.title}>Check Your Email</Text>
         <Text style={styles.subtitle}>
-          We've sent password recovery instructions to your email address. Please click the link or use the code to reset your password.
+          We've sent password recovery instructions to your email address: {email}. Please click the link to reset your password.
         </Text>
 
         <TouchableOpacity
           style={styles.btn}
-          onPress={() => navigate(constants.routes.CONFIRMATION_CODE)}
+          onPress={() => navigate(constants.routes.NEW_PASSWORD, { state: { email } })}
         >
-          <Text style={styles.btnText}>Enter Verification Code</Text>
+          <Text style={styles.btnText}>Reset Password</Text>
         </TouchableOpacity>
 
         <TouchableOpacity

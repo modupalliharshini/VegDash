@@ -1,48 +1,85 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Line, Polyline } from 'react-native-svg';
 import { hooks } from '@/hooks';
 import { constants } from '@/constants';
 import { components } from '@/components';
 import { authService } from '@/services/authService';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useToastStore } from '@/stores/useToastStore';
 
 export const ConfirmationCode: React.FC = () => {
   const { navigate, params } = hooks.useRouter();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const phone = (params as any)?.phone || '';
+  const phone = (params as any)?.phoneNumber || (params as any)?.phone || '';
+  const email = (params as any)?.email || '';
+  const fullName = (params as any)?.fullName || '';
+  const password = (params as any)?.password || '';
   const flow = (params as any)?.flow || 'signup';
-  const { setPhoneVerified } = useAuthStore();
+  const { register } = useAuthStore();
+  const codeLength = email ? 8 : 6;
+
+  const handleResendEmail = async () => {
+    const { showToast } = useToastStore.getState();
+    try {
+      await authService.sendEmailOTP(email);
+      showToast('Confirmation email resent!', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Resend failed', 'error');
+    }
+  };
 
   const handleVerify = async () => {
-    if (code.length < 6) {
-      Alert.alert('Error', 'Please enter a 6-digit verification code');
+    const { showToast } = useToastStore.getState();
+
+    if (code.length < codeLength) {
+      showToast(`Please enter an ${codeLength}-digit verification code`, 'error');
       return;
     }
 
     setLoading(true);
     try {
       if (flow === 'signup') {
-        await authService.verifyOTP(phone, code);
-        setPhoneVerified(true);
+        if (email) {
+          // 1. Verify OTP first. If invalid, throws.
+          await authService.verifyEmailOTP(email, code);
+          // 2. Only after OTP is verified, register the user profile in the database
+          await register({
+            name: fullName,
+            email: email,
+            password: password,
+            phone: phone,
+          });
+        } else {
+          await authService.verifyOTP(phone, code);
+        }
+        showToast('Verification successful!', 'success');
         navigate(constants.routes.ACCOUNT_CREATED);
       } else {
-        // forgot password flow: verify it by going to NewPassword and resetting there
-        navigate(constants.routes.NEW_PASSWORD, {
-          state: { phone, code }
-        });
+        // forgot password flow: verify recovery OTP code in the app first
+        if (email) {
+          await authService.verifyRecoveryOTP(email, code);
+          showToast('Code verified! Set your new password.', 'success');
+          navigate(constants.routes.NEW_PASSWORD, {
+            state: { email, code }
+          });
+        } else {
+          await authService.verifyOTP(phone, code);
+          navigate(constants.routes.NEW_PASSWORD, {
+            state: { phone, code }
+          });
+        }
       }
     } catch (err: any) {
-      Alert.alert('Verification Failed', err.response?.data?.message || err.message || 'Invalid verification code');
+      showToast(err.response?.data?.message || err.message || 'Invalid verification code', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-
   return (
-    <components.SafeAreaView>
+    <components.SafeAreaView style={{ flex: 1 }}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
           <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
@@ -56,19 +93,27 @@ export const ConfirmationCode: React.FC = () => {
       <View style={styles.content}>
         <Text style={styles.title}>Enter Verification Code</Text>
         <Text style={styles.subtitle}>
-          We've sent a 6-digit verification code to your phone number. Please enter it below to confirm.
+          {email
+            ? `We've sent an 8-digit verification code to your email address ${email}. Please enter it below to confirm.`
+            : `We've sent a 6-digit verification code to your phone number ${phone}. Please enter it below to confirm.`}
         </Text>
 
         <components.Input
-          placeholder="Enter 6-digit code"
+          placeholder={`Enter ${codeLength}-digit code`}
           value={code}
-          onChangeText={(val) => setCode(val.replace(/[^0-9]/g, '').slice(0, 6))}
+          onChangeText={(val) => setCode(val.replace(/[^0-9]/g, '').slice(0, codeLength))}
           containerStyle={{ marginBottom: 25 }}
         />
 
         <TouchableOpacity style={styles.btn} onPress={loading ? undefined : handleVerify}>
           <Text style={styles.btnText}>{loading ? 'Verifying...' : 'Verify Code'}</Text>
         </TouchableOpacity>
+
+        {email ? (
+          <TouchableOpacity style={styles.secondaryBtn} onPress={handleResendEmail}>
+            <Text style={styles.secondaryBtnText}>Resend Email</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </components.SafeAreaView>
   );
@@ -79,8 +124,10 @@ const styles = StyleSheet.create({
   backBtn: { padding: 8 },
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
   content: { flex: 1, padding: 24, justifyContent: 'center' },
-  title: { fontSize: 24, fontWeight: '800', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 10 },
-  subtitle: { fontSize: 14, color: '#7E8B97', fontFamily: 'Outfit', lineHeight: 22, marginBottom: 30 },
-  btn: { backgroundColor: '#0F5B35', borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center' },
+  title: { fontSize: 24, fontWeight: '800', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 10, textAlign: 'center' },
+  subtitle: { fontSize: 14, color: '#7E8B97', fontFamily: 'Outfit', lineHeight: 22, marginBottom: 30, textAlign: 'center' },
+  btn: { backgroundColor: '#0F5B35', borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   btnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
+  secondaryBtn: { height: 52, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#0F5B35', borderRadius: 16, marginTop: 12 },
+  secondaryBtnText: { color: '#0F5B35', fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
 });
