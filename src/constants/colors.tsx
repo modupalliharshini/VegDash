@@ -1,0 +1,25 @@
+const RED_COLOR = '#FE2121';
+const TEXT_COLOR = '#7E8B97';
+const WHITE_COLOR = '#FFFFFF';
+const ORANGE_COLOR = '#FF9800';
+const MAIN_DARK_COLOR = '#1E2022';
+const SEA_GREEN_COLOR = '#0F5B35'; // Veg Dash forest green
+const LIGHT_GRAY_COLOR = '#F4F6F8';
+
+export const colors = {
+  RED_COLOR,
+  TEXT_COLOR,
+  WHITE_COLOR,
+  ORANGE_COLOR,
+  SEA_GREEN_COLOR,
+  MAIN_DARK_COLOR,
+  LIGHT_GRAY_COLOR,
+  // Veg Dash custom palette
+  FOREST_GREEN: '#0F5B35',
+  LIGHT_GREEN: '#4CAF50',
+  BRAND_LEAF_GREEN: '#8BC34A',
+  DARK_TEXT: '#1E2022',
+  MUTED_TEXT: '#7E8B97',
+  SOFT_BG: '#F4F6F8',
+  YELLOW_BANNER: '#FFF9C4',
+};
