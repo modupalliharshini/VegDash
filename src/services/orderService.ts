@@ -19,6 +19,7 @@ export interface PlaceOrderPayload {
   items: OrderItemInput[];
   paymentMethod: 'COD' | 'Online';
   deliveryAddress: AddressInput;
+  discount?: number;
 }
 
 export interface VerifyPaymentPayload {
@@ -63,37 +64,12 @@ const generateObjectId = () => {
 };
 
 const simulateOrderStatus = (order: any) => {
-  if (!order || order.orderStatus === 'cancelled') return order;
-
-  const elapsedSeconds = (new Date().getTime() - new Date(order.createdAt).getTime()) / 1000;
-  
-  let currentStatus = 'placed';
-  let history = [...order.statusHistory];
-
-  if (elapsedSeconds >= 45) {
-    currentStatus = 'delivered';
-  } else if (elapsedSeconds >= 30) {
-    currentStatus = 'out_for_delivery';
-  } else if (elapsedSeconds >= 15) {
-    currentStatus = 'preparing';
-  }
-
-  const statuses = ['placed', 'preparing', 'out_for_delivery', 'delivered'];
-  const baseTime = new Date(order.createdAt).getTime();
-
-  history = statuses.slice(0, statuses.indexOf(currentStatus) + 1).map((status, idx) => {
-    const existing = order.statusHistory.find((h: any) => h.status === status);
-    if (existing) return existing;
-    return {
-      status,
-      timestamp: new Date(baseTime + idx * 15 * 1000).toISOString(),
-    };
-  });
-
+  if (!order) return order;
   return {
     ...order,
-    orderStatus: currentStatus,
-    statusHistory: history,
+    statusHistory: Array.isArray(order.statusHistory) 
+      ? order.statusHistory 
+      : [{ status: order.orderStatus || 'placed', timestamp: order.createdAt || new Date().toISOString() }]
   };
 };
 
@@ -135,9 +111,10 @@ export const orderService = {
       };
     });
 
+    const discount = payload.discount || 0;
     const deliveryFee = 25;
     const packagingFee = 15;
-    const totalAmount = subtotal + deliveryFee + packagingFee;
+    const totalAmount = Math.max(0, subtotal + deliveryFee + packagingFee - discount);
 
     const orderId = generateObjectId();
 
@@ -148,7 +125,7 @@ export const orderService = {
       items: itemsWithPrices,
       subtotal,
       deliveryFee,
-      discount: 0,
+      discount,
       totalAmount,
       paymentStatus: payload.paymentMethod === 'COD' ? 'pending' : 'paid',
       paymentMethod: payload.paymentMethod,

@@ -78,6 +78,7 @@ export const Order: React.FC = () => {
           state: user?.addresses?.[0]?.state || 'Telangana',
           zip: user?.addresses?.[0]?.zip || '500032',
         },
+        discount: discountAmount,
       };
 
       const order = await orderService.placeOrder(orderPayload);
