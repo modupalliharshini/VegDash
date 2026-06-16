@@ -40,7 +40,7 @@ export const foodService = {
       if (error || !data || data.length === 0) {
         return mockDishes.filter(d => d.restaurantId === restaurantId).map(mapMockDish);
       }
-      return (data || []).map(item => ({
+      return (data || []).map((item: any) => ({
         ...item,
         restaurantId: item.restaurant
       }));

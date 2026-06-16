@@ -68,16 +68,16 @@ export const searchService = {
           .limit(30);
 
         if (!error && data && data.length > 0) {
-          const restaurantIds = [...new Set(data.map(item => item.restaurant))];
+          const restaurantIds = [...new Set(data.map((item: any) => item.restaurant))];
           const { data: dbRestaurants } = await supabase
             .from('restaurants')
             .select('*')
             .in('_id', restaurantIds);
 
-          foodItems = data.map(item => ({
+          foodItems = data.map((item: any) => ({
             ...item,
             restaurantId: item.restaurant,
-            restaurant: dbRestaurants?.find(r => r._id === item.restaurant) || item.restaurant
+            restaurant: dbRestaurants?.find((r: any) => r._id === item.restaurant) || item.restaurant
           }));
         } else {
           const lowerQuery = query.toLowerCase().trim();
@@ -148,16 +148,16 @@ export const searchService = {
       }
 
       if (!foodErr && popularItemsRaw && popularItemsRaw.length > 0) {
-        const restaurantIds = [...new Set((popularItemsRaw || []).map(item => item.restaurant))];
+        const restaurantIds = [...new Set((popularItemsRaw || []).map((item: any) => item.restaurant))];
         const { data: dbRestaurants } = await supabase
           .from('restaurants')
           .select('*')
           .in('_id', restaurantIds);
 
-        popularItemsList = (popularItemsRaw || []).map(item => ({
+        popularItemsList = (popularItemsRaw || []).map((item: any) => ({
           ...item,
           restaurantId: item.restaurant,
-          restaurant: dbRestaurants?.find(r => r._id === item.restaurant) || item.restaurant
+          restaurant: dbRestaurants?.find((r: any) => r._id === item.restaurant) || item.restaurant
         }));
       } else {
         popularItemsList = mockDishes.map(mapMockDish);
