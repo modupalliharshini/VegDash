@@ -52,7 +52,23 @@ const CouponIcon: React.FC<{ style?: any }> = ({ style }) => (
 export const Home: React.FC = () => {
   const { navigate } = hooks.useRouter();
   const { setVisible } = stores.useModalStore();
-  const [activeCategory, setActiveCategory] = useState('All');
+  // Timing-based animated color transition when activeSlide changes
+  const bannerBgColorAnim = useRef(new Animated.Value(0)).current;
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  useEffect(() => {
+    Animated.timing(bannerBgColorAnim, {
+      toValue: activeSlide,
+      duration: 350,
+      useNativeDriver: false,
+    }).start();
+  }, [activeSlide]);
+
+  const bannerBgColor = bannerBgColorAnim.interpolate({
+    inputRange: [0, 1, 2],
+    outputRange: ['#0F5B35', '#C28E00', '#BF360C'],
+    extrapolate: 'clamp',
+  });
   
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [mustTryDishes, setMustTryDishes] = useState<any[]>([]);
@@ -72,10 +88,8 @@ export const Home: React.FC = () => {
   // Safe area
   const insets = useSafeAreaInsets();
   const [isHeaderDark, setIsHeaderDark] = useState(false);
-  const [activeSlide, setActiveSlide] = useState(0);
 
   // Animated values
-  const scrollX = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const textPulseAnim = useRef(new Animated.Value(0)).current;
 
@@ -210,13 +224,6 @@ export const Home: React.FC = () => {
   const rotateInterpolate = rotateAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
   const textScale = textPulseAnim.interpolate({ inputRange: [0, 1], outputRange: [0.98, 1.02] });
 
-  // Dynamic Background color based on scrollX
-  const bannerBgColor = scrollX.interpolate({
-    inputRange: [0, SCREEN_WIDTH, SCREEN_WIDTH * 2],
-    outputRange: ['#0F5B35', '#C28E00', '#BF360C'],
-    extrapolate: 'clamp',
-  });
-
   // Fetch location on mount
   useEffect(() => {
     const loadStoredLocation = async () => {
@@ -298,28 +305,75 @@ export const Home: React.FC = () => {
     }
   };
 
-  const handleCarouselScroll = Animated.event(
-    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-    {
-      useNativeDriver: false,
-      listener: (event: any) => {
-        const xOffset = event.nativeEvent.contentOffset.x;
-        const pageIndex = Math.round(xOffset / SCREEN_WIDTH);
-        if (pageIndex !== activeSlide) {
-          setActiveSlide(pageIndex);
-        }
-      },
+  const handleCarouselScroll = (event: any) => {
+    const xOffset = event.nativeEvent.contentOffset.x;
+    const pageIndex = Math.round(xOffset / SCREEN_WIDTH);
+    if (pageIndex !== activeSlide && pageIndex >= 0 && pageIndex <= 2) {
+      setActiveSlide(pageIndex);
     }
-  );
+  };
 
-  const categories = [
-    { name: 'All', icon: '🍽️' },
-    { name: 'Pure Vegetarian Restaurants', icon: '🟢' },
-    { name: 'Jain Food', icon: '🍛' },
-    { name: 'Satvik Meals', icon: '🥛' },
-    { name: 'Healthy Foods', icon: '🥗' },
-    { name: 'Organic Food Partners', icon: '🌱' },
-    { name: 'Temple Prasadam Deliveries', icon: '🛕' },
+  const exploreCategories = [
+    {
+      name: 'Pure Vegetarian Restaurants',
+      icon: '🟢',
+      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=400',
+      desc: '100% Veg kitchens only',
+      bgColor: '#E8F5E9',
+      borderColor: '#C8E6C9',
+      textColor: '#1B5E20',
+      badgeColor: '#FFFFFF',
+    },
+    {
+      name: 'Jain Food',
+      icon: '🍛',
+      image: require('../assets/images/jain_food.jpg'),
+      desc: 'No onion or garlic',
+      bgColor: '#FFF3E0',
+      borderColor: '#FFE0B2',
+      textColor: '#E65100',
+      badgeColor: '#FFFFFF',
+    },
+    {
+      name: 'Satvik Meals',
+      icon: '🥛',
+      image: require('../assets/images/satvik_meals.jpg'),
+      desc: 'Wholesome & pure',
+      bgColor: '#FFFDE7',
+      borderColor: '#FFF9C4',
+      textColor: '#F57F17',
+      badgeColor: '#FFFFFF',
+    },
+    {
+      name: 'Healthy Foods',
+      icon: '🥗',
+      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400',
+      desc: 'Nutrient-rich bowls',
+      bgColor: '#F1F8E9',
+      borderColor: '#DCEDC8',
+      textColor: '#33691E',
+      badgeColor: '#FFFFFF',
+    },
+    {
+      name: 'Organic Food Partners',
+      icon: '🌱',
+      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400',
+      desc: 'Direct farm partners',
+      bgColor: '#E0F2F1',
+      borderColor: '#B2DFDB',
+      textColor: '#004D40',
+      badgeColor: '#FFFFFF',
+    },
+    {
+      name: 'Temple Prasadam Deliveries',
+      icon: '🛕',
+      image: require('../assets/images/temple_prasadam.jpg'),
+      desc: 'Blessed temple offerings',
+      bgColor: '#FDF2E9',
+      borderColor: '#FADBD8',
+      textColor: '#78281F',
+      badgeColor: '#FFFFFF',
+    },
   ];
 
   const offers = [
@@ -400,13 +454,6 @@ export const Home: React.FC = () => {
               <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#0F5B35" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
                 <Path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><Path d="M19 10v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" />
               </Svg>
-              <View style={styles.verticalDivider} />
-              <View style={styles.vegSwitchContainer}>
-                <Text style={styles.vegSwitchText}>VEG</Text>
-                <View style={styles.vegSwitchPill}>
-                  <View style={styles.vegSwitchDot} />
-                </View>
-              </View>
             </View>
           </TouchableOpacity>
 
@@ -417,16 +464,21 @@ export const Home: React.FC = () => {
             showsHorizontalScrollIndicator={false}
             onScroll={handleCarouselScroll}
             scrollEventThrottle={16}
+            decelerationRate="fast"
+            snapToInterval={SCREEN_WIDTH}
+            snapToAlignment="center"
+            disableIntervalMomentum={true}
+            removeClippedSubviews={true}
             style={styles.carouselScrollView}
           >
             {/* Slide 1: 50% OFF (Healthy Salads) */}
             <View style={styles.carouselSlide}>
               <View style={styles.bannerPromoBody}>
                 <View style={styles.bannerPromoLeft}>
-                  <View style={styles.bannerPromoBadge}>
-                    <Text style={styles.bannerPromoBadgeText}>🥗 Fresh & Organic</Text>
+                  <View style={[styles.bannerPromoBadge, { backgroundColor: '#FFFFFF' }]}>
+                    <Text style={[styles.bannerPromoBadgeText, { color: '#0F5B35' }]}>🥗 Fresh & Organic</Text>
                   </View>
-                  <Text style={styles.bannerPromoSubtitle}>ITEMS AT</Text>
+                  <Text style={styles.bannerPromoSubtitle}>100% PURE VEG</Text>
                   <Animated.View style={{ transform: [{ scale: textScale }] }}>
                     <Text style={styles.bannerPromoTitleText}>50% OFF</Text>
                   </Animated.View>
@@ -465,15 +517,15 @@ export const Home: React.FC = () => {
             <View style={styles.carouselSlide}>
               <View style={styles.bannerPromoBody}>
                 <View style={styles.bannerPromoLeft}>
-                  <View style={styles.bannerPromoBadge}>
-                    <Text style={styles.bannerPromoBadgeText}>🍛 Premium Taste</Text>
+                  <View style={[styles.bannerPromoBadge, { backgroundColor: '#FFFFFF' }]}>
+                    <Text style={[styles.bannerPromoBadgeText, { color: '#C28E00' }]}>🍛 Premium Taste</Text>
                   </View>
-                  <Text style={styles.bannerPromoSubtitle}>FLAT ₹100 OFF</Text>
+                  <Text style={styles.bannerPromoSubtitle}>100% VEG DELIGHTS</Text>
                   <Animated.View style={{ transform: [{ scale: textScale }] }}>
-                    <Text style={styles.bannerPromoTitleText2}>MIN ₹250</Text>
+                    <Text style={styles.bannerPromoTitleText2}>HEALTHY FOODS</Text>
                   </Animated.View>
                   <Text style={styles.bannerPromoDesc} numberOfLines={2}>
-                    Aromatic long-grain basmati biryanis & rich, fresh paneer curries.
+                    Delicious, nutrient-dense organic meals and gourmet vegetarian specialties.
                   </Text>
                   <View style={styles.bannerPromoCodeContainer}>
                     <Text style={styles.bannerPromoCodeText}>Code: VEGDASH100</Text>
@@ -484,18 +536,18 @@ export const Home: React.FC = () => {
                 </View>
 
                 <View style={styles.bannerPromoRight}>
-                  {/* Plate 1: Veg Biryani */}
+                  {/* Plate 1: Healthy Salad Bowl */}
                   <Animated.View style={[styles.plate1Wrapper, { transform: [{ translateX: translate2_1X }, { translateY: translate2_1Y }] }]}>
                     <Image
-                      source={{ uri: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?q=80&w=250' }}
+                      source={{ uri: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=250' }}
                       style={styles.plateImageLarge as any}
                     />
                   </Animated.View>
 
-                  {/* Plate 2: Paneer Curry */}
+                  {/* Plate 2: Veg Greens Bowl */}
                   <Animated.View style={[styles.plate2Wrapper, { transform: [{ translateX: translate2_2X }, { translateY: translate2_2Y }] }]}>
                     <Image
-                      source={{ uri: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=250' }}
+                      source={{ uri: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=250' }}
                       style={styles.plateImageSmall as any}
                     />
                   </Animated.View>
@@ -507,37 +559,37 @@ export const Home: React.FC = () => {
             <View style={styles.carouselSlide}>
               <View style={styles.bannerPromoBody}>
                 <View style={styles.bannerPromoLeft}>
-                  <View style={styles.bannerPromoBadge}>
-                    <Text style={styles.bannerPromoBadgeText}>🟢 Strict Satvik</Text>
+                  <View style={[styles.bannerPromoBadge, { backgroundColor: '#FFFFFF' }]}>
+                    <Text style={[styles.bannerPromoBadgeText, { color: '#BF360C' }]}>🟢 Strict Satvik</Text>
                   </View>
-                  <Text style={styles.bannerPromoSubtitle}>JAIN SPECIAL</Text>
+                  <Text style={styles.bannerPromoSubtitle}>TEMPLE PRASADAM</Text>
                   <Animated.View style={{ transform: [{ scale: textScale }] }}>
-                    <Text style={styles.bannerPromoTitleText2}>25% OFF</Text>
+                    <Text style={styles.bannerPromoTitleText2}>SATVIK MEALS</Text>
                   </Animated.View>
                   <Text style={styles.bannerPromoDesc} numberOfLines={2}>
-                    Prepared without root veg, onion or garlic. Traditional Jain rules.
+                    Blessed, pure Satvik meals & authentic Temple Prasadam delivered to your doorstep.
                   </Text>
                   <View style={styles.bannerPromoCodeContainer}>
-                    <Text style={styles.bannerPromoCodeText}>Code: JAIN25</Text>
+                    <Text style={styles.bannerPromoCodeText}>Code: SATVIK25</Text>
                   </View>
-                  <TouchableOpacity style={styles.bannerOrderBtn} onPress={() => navigate(constants.routes.SHOP, { state: { category: 'Jain Food' } })}>
+                  <TouchableOpacity style={styles.bannerOrderBtn} onPress={() => navigate(constants.routes.SHOP, { state: { category: 'Satvik Meals' } })}>
                     <Text style={styles.bannerOrderBtnText}>Explore Menu ➔</Text>
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.bannerPromoRight}>
-                  {/* Plate 1: Jain Thali */}
+                  {/* Plate 1: Temple Prasadam */}
                   <Animated.View style={[styles.plate1Wrapper, { transform: [{ scale: scale3_1Val }, { rotate: swing3_1Val }] }]}>
                     <Image
-                      source={{ uri: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=250' }}
+                      source={{ uri: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?q=80&w=250' }}
                       style={styles.plateImageLarge as any}
                     />
                   </Animated.View>
 
-                  {/* Plate 2: Satvik Thali snack */}
+                  {/* Plate 2: Satvik Meal */}
                   <Animated.View style={[styles.plate2Wrapper, { transform: [{ scale: scale3_2Val }, { rotate: swing3_2Val }] }]}>
                     <Image
-                      source={{ uri: 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78?q=80&w=250' }}
+                      source={{ uri: 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?q=80&w=250' }}
                       style={styles.plateImageSmall as any}
                     />
                   </Animated.View>
@@ -558,26 +610,34 @@ export const Home: React.FC = () => {
         <View style={styles.sectionHeaderUnderBanner}>
           <Text style={styles.sectionTitle}>Explore Cuisines</Text>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll} contentContainerStyle={{ paddingLeft: 20, paddingRight: 20, gap: 10 }}>
-          {categories.map((cat) => {
-            const isActive = cat.name === activeCategory;
-            return (
-              <TouchableOpacity
-                key={cat.name}
-                onPress={() => {
-                  setActiveCategory(cat.name);
-                  if (cat.name !== 'All') {
-                    navigate(constants.routes.SHOP, { state: { category: cat.name } });
-                  }
-                }}
-                style={[styles.categoryBtn, isActive && styles.categoryBtnActive]}
-              >
-                <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                <Text style={[styles.categoryText, isActive && styles.categoryTextActive]}>{cat.name}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+        <View style={styles.cuisineGrid}>
+          {exploreCategories.map((cat) => (
+            <TouchableOpacity
+              key={cat.name}
+              onPress={() => navigate(constants.routes.SHOP, { state: { category: cat.name } })}
+              style={styles.cuisineCard}
+              activeOpacity={0.85}
+            >
+              <Image
+                source={typeof cat.image === 'string' ? { uri: cat.image } : cat.image}
+                style={styles.cuisineCardImage}
+                resizeMode="cover"
+              />
+              <View style={styles.cuisineCardOverlay} />
+              
+              <View style={styles.cuisineCardContent}>
+                <View style={styles.cuisineIconBadge}>
+                  <Text style={styles.cuisineIconText}>{cat.icon}</Text>
+                </View>
+                
+                <View style={styles.cuisineCardFooter}>
+                  <Text style={styles.cuisineCardTitle} numberOfLines={2}>{cat.name}</Text>
+                  <Text style={styles.cuisineCardDesc} numberOfLines={1}>{cat.desc}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         {/* Offers For You Carousel */}
         <View style={styles.sectionHeader}>
@@ -908,19 +968,23 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   bannerPromoBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
     alignSelf: 'flex-start',
-    marginBottom: 6,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
   },
   bannerPromoBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '900',
     fontFamily: 'Outfit',
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
   },
   bannerPromoSubtitle: {
     fontFamily: 'Outfit',
@@ -1367,5 +1431,71 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     fontFamily: 'Outfit',
+  },
+  cuisineGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    gap: 12,
+    marginBottom: 25,
+  },
+  cuisineCard: {
+    width: (SCREEN_WIDTH - 52) / 2,
+    height: (SCREEN_WIDTH - 52) / 2,
+    borderRadius: 16,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: '#F5F5F5',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  cuisineCardImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  cuisineCardOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.42)',
+  },
+  cuisineCardContent: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  cuisineIconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+  },
+  cuisineIconText: {
+    fontSize: 16,
+  },
+  cuisineCardFooter: {
+    gap: 2,
+  },
+  cuisineCardTitle: {
+    fontFamily: 'Outfit',
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    lineHeight: 16,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  cuisineCardDesc: {
+    fontFamily: 'Outfit',
+    fontSize: 9,
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: '500',
   },
 });

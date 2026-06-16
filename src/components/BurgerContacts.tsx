@@ -91,16 +91,14 @@ export const BurgerContacts: React.FC = () => {
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 250,
-          easing: Easing.out(Easing.ease),
+          duration: 200,
+          easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
         }),
-        Animated.spring(slideAnim, {
+        Animated.timing(slideAnim, {
           toValue: 0,
-          damping: 24,
-          stiffness: 220,
-          mass: 0.9,
-          velocity: 1.5,
+          duration: 200,
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
           useNativeDriver: true,
         })
       ]).start();
@@ -109,13 +107,13 @@ export const BurgerContacts: React.FC = () => {
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 0,
-            duration: 180,
+            duration: 150,
             easing: Easing.linear,
             useNativeDriver: true,
           }),
           Animated.timing(slideAnim, {
             toValue: -DRAWER_WIDTH,
-            duration: 180,
+            duration: 150,
             easing: Easing.bezier(0.25, 1, 0.5, 1),
             useNativeDriver: true,
           })
