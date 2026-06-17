@@ -4,7 +4,30 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Alert, Platform } from 'react-native';
+
+// Web polyfill for Alert.alert to make confirmation dialogs work on React Native Web
+if (Platform.OS === 'web') {
+  (Alert as any).alert = (title: string, message?: string, buttons?: any[]) => {
+    if (buttons && buttons.length > 0) {
+      const confirmMessage = message ? `${title}\n\n${message}` : title;
+      const result = window.confirm(confirmMessage);
+      if (result) {
+        const positiveBtn = buttons.find(b => b.style !== 'cancel' && b.text !== 'No') || buttons[buttons.length - 1];
+        if (positiveBtn && positiveBtn.onPress) {
+          positiveBtn.onPress();
+        }
+      } else {
+        const cancelBtn = buttons.find(b => b.style === 'cancel' || b.text === 'No');
+        if (cancelBtn && cancelBtn.onPress) {
+          cancelBtn.onPress();
+        }
+      }
+    } else {
+      window.alert(message ? `${title}: ${message}` : title);
+    }
+  };
+}
 
 import { screens } from '@/screens';
 import { constants } from '@/constants';

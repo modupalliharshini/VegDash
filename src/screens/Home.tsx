@@ -317,7 +317,7 @@ export const Home: React.FC = () => {
     {
       name: 'Pure Vegetarian Restaurants',
       icon: '🟢',
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=400',
+      image: require('../assets/images/pure_veg.png'),
       desc: '100% Veg kitchens only',
       bgColor: '#E8F5E9',
       borderColor: '#C8E6C9',
@@ -327,7 +327,7 @@ export const Home: React.FC = () => {
     {
       name: 'Jain Food',
       icon: '🍛',
-      image: require('../assets/images/jain_food.jpg'),
+      image: require('../assets/images/jain_food.png'),
       desc: 'No onion or garlic',
       bgColor: '#FFF3E0',
       borderColor: '#FFE0B2',
@@ -337,7 +337,7 @@ export const Home: React.FC = () => {
     {
       name: 'Satvik Meals',
       icon: '🥛',
-      image: require('../assets/images/satvik_meals.jpg'),
+      image: require('../assets/images/satvik_meals.png'),
       desc: 'Wholesome & pure',
       bgColor: '#FFFDE7',
       borderColor: '#FFF9C4',
@@ -347,7 +347,7 @@ export const Home: React.FC = () => {
     {
       name: 'Healthy Foods',
       icon: '🥗',
-      image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400',
+      image: require('../assets/images/healthy_foods.png'),
       desc: 'Nutrient-rich bowls',
       bgColor: '#F1F8E9',
       borderColor: '#DCEDC8',
@@ -357,7 +357,7 @@ export const Home: React.FC = () => {
     {
       name: 'Organic Food Partners',
       icon: '🌱',
-      image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=400',
+      image: require('../assets/images/organic_partners.png'),
       desc: 'Direct farm partners',
       bgColor: '#E0F2F1',
       borderColor: '#B2DFDB',
@@ -367,7 +367,7 @@ export const Home: React.FC = () => {
     {
       name: 'Temple Prasadam Deliveries',
       icon: '🛕',
-      image: require('../assets/images/temple_prasadam.jpg'),
+      image: require('../assets/images/temple_prasadam.png'),
       desc: 'Blessed temple offerings',
       bgColor: '#FDF2E9',
       borderColor: '#FADBD8',
@@ -615,25 +615,36 @@ export const Home: React.FC = () => {
             <TouchableOpacity
               key={cat.name}
               onPress={() => navigate(constants.routes.SHOP, { state: { category: cat.name } })}
-              style={styles.cuisineCard}
+              style={[
+                styles.cuisineCard,
+                {
+                  backgroundColor: cat.bgColor,
+                  borderColor: cat.borderColor,
+                }
+              ]}
               activeOpacity={0.85}
             >
-              <Image
-                source={typeof cat.image === 'string' ? { uri: cat.image } : cat.image}
-                style={styles.cuisineCardImage}
-                resizeMode="cover"
-              />
-              <View style={styles.cuisineCardOverlay} />
+              {/* Premium Circular Plate containing the food image */}
+              <View style={styles.plateContainer}>
+                <View style={styles.plateInnerFood}>
+                  <Image
+                    source={typeof cat.image === 'string' ? { uri: cat.image } : cat.image}
+                    style={styles.plateImage}
+                    resizeMode="cover"
+                  />
+                </View>
+                {/* Floating Emoji Icon Badge */}
+                <View style={styles.plateIconBadge}>
+                  <Text style={styles.plateIconText}>{cat.icon}</Text>
+                </View>
+              </View>
               
-              <View style={styles.cuisineCardContent}>
-                <View style={styles.cuisineIconBadge}>
-                  <Text style={styles.cuisineIconText}>{cat.icon}</Text>
-                </View>
-                
-                <View style={styles.cuisineCardFooter}>
-                  <Text style={styles.cuisineCardTitle} numberOfLines={2}>{cat.name}</Text>
-                  <Text style={styles.cuisineCardDesc} numberOfLines={1}>{cat.desc}</Text>
-                </View>
+              {/* Premium Labels Underneath Plate */}
+              <View style={styles.cuisineCardFooter}>
+                <Text style={[styles.cuisineCardTitle, { color: cat.textColor }]} numberOfLines={2}>
+                  {cat.name}
+                </Text>
+                <Text style={styles.cuisineCardDesc} numberOfLines={1}>{cat.desc}</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -1443,59 +1454,85 @@ const styles = StyleSheet.create({
   cuisineCard: {
     width: (SCREEN_WIDTH - 52) / 2,
     height: (SCREEN_WIDTH - 52) / 2,
-    borderRadius: 16,
+    borderRadius: 24, // premium rounded card look
+    borderWidth: 1.5,
     overflow: 'hidden',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.04,
+    shadowRadius: 12,
+    elevation: 3,
+    paddingVertical: 18,
+    paddingHorizontal: 10,
+    justifyContent: 'center', // Center content group vertically
+    alignItems: 'center', // Center horizontally
+  },
+  plateContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFFFFF',
     position: 'relative',
-    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
     elevation: 3,
+    borderWidth: 2.5,
+    borderColor: '#FFFFFF', // Clean ceramic plate rim
   },
-  cuisineCardImage: {
-    ...StyleSheet.absoluteFillObject,
+  plateInnerFood: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    overflow: 'hidden',
+    backgroundColor: '#F8FAFC',
+  },
+  plateImage: {
     width: '100%',
     height: '100%',
   },
-  cuisineCardOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.42)',
-  },
-  cuisineCardContent: {
-    flex: 1,
-    padding: 12,
-    justifyContent: 'space-between',
-  },
-  cuisineIconBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    alignItems: 'center',
+  plateIconBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
-    alignSelf: 'flex-start',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
-  cuisineIconText: {
-    fontSize: 16,
+  plateIconText: {
+    fontSize: 10,
   },
   cuisineCardFooter: {
-    gap: 2,
+    alignItems: 'center',
+    marginTop: 10, // Premium gap between circle plate and content below
+    width: '100%',
   },
   cuisineCardTitle: {
     fontFamily: 'Outfit',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800',
-    color: '#FFFFFF',
-    lineHeight: 16,
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    textAlign: 'center',
+    lineHeight: 14,
   },
   cuisineCardDesc: {
     fontFamily: 'Outfit',
     fontSize: 9,
-    color: 'rgba(255, 255, 255, 0.85)',
-    fontWeight: '500',
+    color: '#64748B',
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 2,
   },
 });
