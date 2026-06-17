@@ -694,7 +694,7 @@ export const Home: React.FC = () => {
                   activeOpacity={0.85}
                 >
                   <Image
-                    source={{ uri: res.coverImage || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=250' }}
+                    source={res.coverImage ? { uri: res.coverImage } : require('../assets/images/restaurant_default.png')}
                     style={styles.restaurantImage as any}
                   />
                   <View style={styles.restaurantRating}>

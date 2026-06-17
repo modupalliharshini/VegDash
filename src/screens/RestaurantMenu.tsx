@@ -171,7 +171,7 @@ export const RestaurantMenu: React.FC = () => {
             {/* Restaurant Cover Info */}
             <View style={styles.restaurantSection}>
               <Image
-                source={{ uri: restaurant.coverImage || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=400' }}
+                source={restaurant.coverImage ? { uri: restaurant.coverImage } : require('../assets/images/restaurant_default.png')}
                 style={styles.coverImage}
               />
               <View style={styles.detailsCard}>
