@@ -31,7 +31,7 @@ export interface VerifyPaymentPayload {
 const LOCAL_ORDERS_KEY = 'vegdash_local_orders';
 
 const sanitizeOrderDriver = (driver: any) => {
-  if (!driver) return { name: 'Rohan Sharma', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150' };
+  if (!driver) return null;
   if (typeof driver === 'string') {
     try {
       return JSON.parse(driver);
@@ -132,10 +132,7 @@ export const orderService = {
       paymentId: '',
       orderStatus: 'placed',
       deliveryAddress: payload.deliveryAddress,
-      driver: JSON.stringify({
-        name: 'Rohan Sharma',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150',
-      }),
+      driver: null,
       statusHistory: [{ status: 'placed', timestamp: new Date().toISOString() }],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -152,10 +149,7 @@ export const orderService = {
 
     const localOrderRow = {
       ...orderRow,
-      driver: {
-        name: 'Rohan Sharma',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150',
-      }
+      driver: null
     };
 
     const local = await getLocalOrders();

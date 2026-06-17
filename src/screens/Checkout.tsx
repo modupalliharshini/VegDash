@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
+
 import Svg, { Line, Polyline, Circle, Path, Polygon } from 'react-native-svg';
 import { hooks } from '@/hooks';
 import { constants } from '@/constants';
 import { components } from '@/components';
 import { orderService } from '@/services/orderService';
+import { supabase } from '@/services/api';
+
 
 export const Checkout: React.FC = () => {
   const { navigate, params } = hooks.useRouter();
@@ -12,6 +15,106 @@ export const Checkout: React.FC = () => {
 
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  const [cancelTimeLeft, setCancelTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (!order || order.orderStatus !== 'placed') {
+      setCancelTimeLeft(0);
+      return;
+    }
+
+    const checkTime = () => {
+      const createdTime = new Date(order.createdAt).getTime();
+      const elapsedSeconds = Math.floor((Date.now() - createdTime) / 1000);
+      const limit = 60; // 60s window
+      const left = Math.max(0, limit - elapsedSeconds);
+      setCancelTimeLeft(left);
+    };
+
+    checkTime();
+    const timer = setInterval(checkTime, 1000);
+    return () => clearInterval(timer);
+  }, [order]);
+
+  const handleCancelOrder = async () => {
+    const createdTime = new Date(order.createdAt).getTime();
+    const elapsedSeconds = Math.floor((Date.now() - createdTime) / 1000);
+    if (elapsedSeconds > 60 || order.orderStatus !== 'placed') {
+      alert('The order cannot be cancelled now.');
+      return;
+    }
+
+    try {
+      const now = new Date().toISOString();
+      const statusHistoryUpdate = [
+        ...(order.statusHistory || []),
+        { status: 'cancelled', timestamp: now }
+      ];
+
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          orderStatus: 'cancelled',
+          statusHistory: statusHistoryUpdate,
+          updatedAt: now
+        })
+        .eq('_id', orderId);
+
+      if (error) throw error;
+
+      alert('Order cancelled successfully.');
+      setOrder((prev: any) => ({
+        ...prev,
+        orderStatus: 'cancelled',
+        statusHistory: statusHistoryUpdate
+      }));
+    } catch (err: any) {
+      console.error('Failed to cancel order:', err);
+      alert('Error cancelling order: ' + err.message);
+    }
+  };
+
+
+  const handleSubmitReview = async () => {
+    if (!reviewRating) return;
+    setSubmittingReview(true);
+    try {
+      let currentDriver = order.driver || {};
+      const updatedDriver = {
+        ...currentDriver,
+        review: {
+          rating: reviewRating,
+          comment: reviewComment,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      const { error } = await supabase
+        .from('orders')
+        .update({ driver: JSON.stringify(updatedDriver) })
+        .eq('_id', orderId);
+
+      if (error) throw error;
+      setReviewSubmitted(true);
+      
+      // Update order state locally
+      setOrder((prev: any) => ({
+        ...prev,
+        driver: updatedDriver
+      }));
+    } catch (err) {
+      console.error('Failed to submit review:', err);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!orderId) return;
@@ -46,7 +149,7 @@ export const Checkout: React.FC = () => {
   }, [orderId]);
 
   const getStepStatus = (stepName: string, currentStatus: string) => {
-    const statusOrder = ['placed', 'preparing', 'out_for_delivery', 'delivered'];
+    const statusOrder = ['placed', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'delivered'];
     const currentIdx = statusOrder.indexOf(currentStatus);
     const stepIdx = statusOrder.indexOf(stepName);
 
@@ -70,16 +173,18 @@ export const Checkout: React.FC = () => {
   const timelineSteps = order ? [
     { title: 'Order Placed', time: getStepTime('placed', order.statusHistory), status: getStepStatus('placed', order.orderStatus) },
     { title: 'Preparing Your Order', time: getStepTime('preparing', order.statusHistory), status: getStepStatus('preparing', order.orderStatus) },
+    { title: 'Order Ready to be Picked Up', time: getStepTime('ready_for_pickup', order.statusHistory), status: getStepStatus('ready_for_pickup', order.orderStatus) },
     { title: 'Out for Delivery', time: getStepTime('out_for_delivery', order.statusHistory), status: getStepStatus('out_for_delivery', order.orderStatus) },
     { title: 'Delivered', time: getStepTime('delivered', order.statusHistory), status: getStepStatus('delivered', order.orderStatus) },
   ] : [];
 
 
   const getProgressInfo = (status: string) => {
-    if (status === 'placed') return { width: '25%', dots: 1 };
-    if (status === 'preparing') return { width: '50%', dots: 2 };
-    if (status === 'out_for_delivery') return { width: '75%', dots: 3 };
-    if (status === 'delivered') return { width: '100%', dots: 4 };
+    if (status === 'placed') return { width: '20%', dots: 1 };
+    if (status === 'preparing') return { width: '40%', dots: 2 };
+    if (status === 'ready_for_pickup') return { width: '60%', dots: 3 };
+    if (status === 'out_for_delivery') return { width: '80%', dots: 4 };
+    if (status === 'delivered') return { width: '100%', dots: 5 };
     return { width: '0%', dots: 0 };
   };
 
@@ -149,22 +254,104 @@ export const Checkout: React.FC = () => {
           <Text style={styles.etaTitle}>
             {order.orderStatus === 'placed' && 'Preparing your pure vegetarian food'}
             {order.orderStatus === 'preparing' && 'Chef is crafting your order'}
+            {order.orderStatus === 'ready_for_pickup' && 'Order ready to be picked up'}
             {order.orderStatus === 'out_for_delivery' && 'Your food is out for delivery'}
             {order.orderStatus === 'delivered' && 'Enjoy your good food!'}
             {order.orderStatus === 'cancelled' && 'Order has been cancelled'}
           </Text>
         </View>
+
+        {/* Order Cancellation Box */}
+        {order.orderStatus === 'placed' && (
+          <View style={styles.cancelBox}>
+            {cancelTimeLeft > 0 ? (
+              <View>
+                <Text style={styles.cancelInfo}>You can cancel this order within the next {cancelTimeLeft} seconds.</Text>
+                <TouchableOpacity style={styles.cancelBtn} onPress={handleCancelOrder}>
+                  <Text style={styles.cancelBtnText}>Cancel Order</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.cannotCancelRow}>
+                <Text style={styles.cannotCancelText}>⚠️ The order cannot be cancelled now.</Text>
+              </View>
+            )}
+          </View>
+        )}
+
  
         {/* Horizontal progress dots */}
         {order.orderStatus !== 'cancelled' && (
           <View style={styles.progressRow}>
             <View style={styles.progressTrack} />
             <View style={[styles.progressFill, { width: progressWidth as any }]} />
-            {[0, 1, 2, 3].map((i) => (
+            {[0, 1, 2, 3, 4].map((i) => (
               <View key={i} style={[styles.progressDot, i < progressDots ? styles.progressDotFilled : styles.progressDotEmpty]} />
             ))}
           </View>
         )}
+
+        {/* Live Location Map for Customer */}
+        {order.driver && order.driver.location && (order.orderStatus === 'ready_for_pickup' || order.orderStatus === 'out_for_delivery') && (
+          <View style={styles.trackingMap}>
+            <View style={styles.mapGrid} />
+            {order.driver.location.stage === 'to_store' || order.orderStatus === 'ready_for_pickup' ? (
+              <Svg width="100%" height={180} viewBox="0 0 440 200" style={{ position: 'absolute', top: 0, left: 0 }}>
+                {/* Rider to Restaurant Path */}
+                <Path d="M 10,180 Q 30,160 50,140" fill="none" stroke="rgba(15, 91, 53, 0.08)" strokeWidth="8" />
+                <Path d="M 10,180 Q 30,160 50,140" fill="none" stroke="#0F5B35" strokeWidth="2.5" strokeDasharray="5 5" />
+                <Circle cx="10" cy="180" r="6" fill="#64748B" />
+                <Circle cx="50" cy="140" r="7" fill="#3B82F6" />
+                
+                {/* Live Rider Position dot */}
+                <Circle 
+                  cx={10 + (50 - 10) * (order.driver.location.progress || 0)} 
+                  cy={180 + (140 - 180) * (order.driver.location.progress || 0) - Math.sin((order.driver.location.progress || 0) * Math.PI) * 12} 
+                  r="9" 
+                  fill="#0F5B35" 
+                  stroke="#ffffff" 
+                  strokeWidth={2} 
+                />
+              </Svg>
+            ) : (
+              <Svg width="100%" height={180} viewBox="0 0 440 200" style={{ position: 'absolute', top: 0, left: 0 }}>
+                {/* Restaurant to Customer Path */}
+                <Path d="M 50,140 Q 220,50 390,60" fill="none" stroke="rgba(15, 91, 53, 0.08)" strokeWidth="8" />
+                <Path d="M 50,140 Q 220,50 390,60" fill="none" stroke="#10B981" strokeWidth="2.5" />
+                <Circle cx="50" cy="140" r="7" fill="#3B82F6" />
+                <Circle cx="390" cy="60" r="7" fill="#EF4444" />
+                
+                {/* Live Rider Position dot */}
+                <Circle 
+                  cx={50 + (390 - 50) * (order.driver.location.progress || 0)} 
+                  cy={140 + (60 - 140) * (order.driver.location.progress || 0) - Math.sin((order.driver.location.progress || 0) * Math.PI) * 45} 
+                  r="9" 
+                  fill="#0F5B35" 
+                  stroke="#ffffff" 
+                  strokeWidth={2} 
+                />
+              </Svg>
+            )}
+            
+            {order.driver.location.stage === 'to_store' || order.orderStatus === 'ready_for_pickup' ? (
+              <>
+                <View style={[styles.mapBadge, { left: 10, top: 190 }]}><Text style={styles.mapBadgeText}>Rider Start</Text></View>
+                <View style={[styles.mapBadge, { left: 40, top: 155 }]}><Text style={styles.mapBadgeText}>Restaurant</Text></View>
+              </>
+            ) : (
+              <>
+                <View style={[styles.mapBadge, { left: 40, top: 155 }]}><Text style={styles.mapBadgeText}>Restaurant</Text></View>
+                <View style={[styles.mapBadge, { left: 370, top: 75 }]}><Text style={styles.mapBadgeText}>Customer</Text></View>
+              </>
+            )}
+            
+            <Text style={styles.navInstruction}>
+              {order.orderStatus === 'ready_for_pickup' && `🏍️ Rider en route to restaurant (${Math.round((order.driver.location.progress || 0) * 100)}% progress)`}
+              {order.orderStatus === 'out_for_delivery' && `🏍️ Rider en route to your location (${Math.round((order.driver.location.progress || 0) * 100)}% progress)`}
+            </Text>
+          </View>
+        )}
+
  
         <View style={styles.divider} />
  
@@ -211,9 +398,60 @@ export const Checkout: React.FC = () => {
           )}
         </View>
  
+        {/* Customer Review Card */}
+        {order.orderStatus === 'delivered' && (
+          <View style={styles.reviewCard}>
+            <Text style={styles.reviewCardTitle}>Rate your experience</Text>
+            {reviewSubmitted || (order.driver && order.driver.review) ? (
+              <View style={styles.submittedContainer}>
+                <View style={styles.starRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Text key={star} style={[styles.starIcon, { fontSize: 24, color: star <= (reviewRating || order.driver?.review?.rating || 0) ? '#F59E0B' : '#E2E8F0' }]}>★</Text>
+                  ))}
+                </View>
+                <Text style={styles.submittedComment}>"{reviewComment || order.driver?.review?.comment || 'No comment'}"</Text>
+                <Text style={styles.submittedText}>🎉 Thank you for your feedback!</Text>
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.reviewSub}>How was the food and delivery?</Text>
+                <View style={styles.starRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity key={star} onPress={() => setReviewRating(star)}>
+                      <Text style={[styles.starIcon, { fontSize: 32, color: star <= reviewRating ? '#F59E0B' : '#E2E8F0', paddingHorizontal: 4 }]}>
+                        ★
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <TextInput
+                  style={styles.reviewInput}
+                  placeholder="Tell us what you liked or how we can improve..."
+                  placeholderTextColor="#94A3B8"
+                  value={reviewComment}
+                  onChangeText={setReviewComment}
+                  multiline
+                />
+                <TouchableOpacity 
+                  style={[styles.submitReviewBtn, (!reviewRating || submittingReview) && styles.disabledBtn]} 
+                  onPress={handleSubmitReview}
+                  disabled={!reviewRating || submittingReview}
+                >
+                  {submittingReview ? (
+                    <ActivityIndicator color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.submitReviewBtnText}>Submit Review</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+
         <TouchableOpacity style={styles.receiptBtn} onPress={() => navigate(constants.routes.ORDER_SUCCESSFUL, { state: { orderId: order._id } })}>
           <Text style={styles.receiptBtnText}>View Order Receipt</Text>
         </TouchableOpacity>
+
       </ScrollView>
     </components.SafeAreaView>
   );
@@ -255,4 +493,136 @@ const styles = StyleSheet.create({
   iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: 'rgba(15,91,53,0.1)', alignItems: 'center', justifyContent: 'center' },
   receiptBtn: { height: 52, borderRadius: 16, backgroundColor: '#0F5B35', alignItems: 'center', justifyContent: 'center' },
   receiptBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: 'Outfit' },
+  trackingMap: { height: 180, backgroundColor: '#F8FAFC', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', marginVertical: 14, overflow: 'hidden', position: 'relative' },
+  mapGrid: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.04, borderWidth: 1, borderColor: '#475569' },
+  mapBadge: { position: 'absolute', backgroundColor: 'rgba(15, 23, 42, 0.85)', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 4 },
+  mapBadgeText: { color: '#ffffff', fontSize: 8, fontWeight: '700' },
+  navInstruction: { position: 'absolute', bottom: 8, left: 8, right: 8, backgroundColor: '#FFFFFF', padding: 6, borderRadius: 6, fontSize: 10, fontWeight: '700', color: '#475569', textAlign: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
+  reviewCard: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.01,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  reviewCardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1E2022',
+    fontFamily: 'Outfit',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  reviewSub: {
+    fontSize: 13,
+    color: '#7E8B97',
+    fontFamily: 'Outfit',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  starRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  starIcon: {
+    fontFamily: 'Outfit',
+  },
+  reviewInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    padding: 12,
+    color: '#1E2022',
+    fontSize: 14,
+    fontFamily: 'Outfit',
+    height: 80,
+    textAlignVertical: 'top',
+    marginBottom: 14,
+  },
+  submitReviewBtn: {
+    backgroundColor: '#0F5B35',
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  submitReviewBtnText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: 'Outfit',
+  },
+  disabledBtn: {
+    backgroundColor: '#CBD5E1',
+  },
+  submittedContainer: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  submittedComment: {
+    fontSize: 14,
+    color: '#7E8B97',
+    fontStyle: 'italic',
+    fontFamily: 'Outfit',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  submittedText: {
+    fontSize: 14,
+    color: '#0F5B35',
+    fontWeight: '700',
+    fontFamily: 'Outfit',
+    textAlign: 'center',
+  },
+  cancelBox: {
+    backgroundColor: '#FFF5F5',
+    borderWidth: 1,
+    borderColor: '#FEB2B2',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 20,
+  },
+  cancelInfo: {
+    fontSize: 12,
+    color: '#C53030',
+    fontFamily: 'Outfit',
+    textAlign: 'center',
+    marginBottom: 10,
+    fontWeight: '600',
+  },
+  cancelBtn: {
+    backgroundColor: '#E53E3E',
+    height: 38,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+    fontFamily: 'Outfit',
+  },
+  cannotCancelRow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cannotCancelText: {
+    fontSize: 13,
+    color: '#C53030',
+    fontFamily: 'Outfit',
+    fontWeight: '700',
+    textAlign: 'center',
+  },
 });
+
+
