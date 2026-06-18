@@ -12,7 +12,8 @@
       "backgroundColor": "#0F5B35"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vegdash.app"
     },
     "android": {
       "adaptiveIcon": {
