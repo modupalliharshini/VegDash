@@ -257,20 +257,46 @@ export const Checkout: React.FC = () => {
 
     fetchOrder();
 
-    // Setup polling every 5 seconds
-    const interval = setInterval(async () => {
-      try {
-        const orderData = await orderService.getOrderById(orderId);
-        setOrder(orderData);
-        if (orderData.orderStatus === 'delivered' || orderData.orderStatus === 'cancelled') {
-          clearInterval(interval);
+    // Setup Supabase Realtime order row listener
+    const orderChannel = supabase
+      .channel(`order-changes:${orderId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `_id=eq.${orderId}` },
+        () => {
+          fetchOrder();
         }
-      } catch (err) {
-        console.error('Polling failed:', err);
-      }
-    }, 5000);
+      )
+      .subscribe();
 
-    return () => clearInterval(interval);
+    // Setup Supabase Realtime Broadcast tracking listener
+    const trackingChannel = supabase
+      .channel(`order-tracking:${orderId}`)
+      .on('broadcast', { event: 'location-update' }, (payload: any) => {
+        const loc = payload.payload;
+        setOrder((prev: any) => {
+          if (!prev) return prev;
+          const currentDriver = prev.driver || {};
+          return {
+            ...prev,
+            driver: {
+              ...currentDriver,
+              location: {
+                lat: loc.lat,
+                lng: loc.lng,
+                progress: loc.progress,
+                stage: loc.stage
+              }
+            }
+          };
+        });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(orderChannel);
+      supabase.removeChannel(trackingChannel);
+    };
   }, [orderId]);
 
   const getStepStatus = (stepName: string, currentStatus: string) => {

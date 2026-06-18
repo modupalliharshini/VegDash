@@ -64,13 +64,7 @@ const generateObjectId = () => {
 };
 
 const simulateOrderStatus = (order: any) => {
-  if (!order) return order;
-  return {
-    ...order,
-    statusHistory: Array.isArray(order.statusHistory) 
-      ? order.statusHistory 
-      : [{ status: order.orderStatus || 'placed', timestamp: order.createdAt || new Date().toISOString() }]
-  };
+  return order;
 };
 
 export const orderService = {
@@ -121,7 +115,9 @@ export const orderService = {
     const orderRow = {
       _id: orderId,
       customer: user?.id || 'guest',
+      user_id: user?.id || null,
       restaurant: payload.restaurantId,
+      restaurant_id: payload.restaurantId,
       items: itemsWithPrices,
       subtotal,
       deliveryFee,
@@ -131,8 +127,11 @@ export const orderService = {
       paymentMethod: payload.paymentMethod,
       paymentId: '',
       orderStatus: 'placed',
+      status: 'placed',
       deliveryAddress: payload.deliveryAddress,
       driver: null,
+      pickup_otp: null,
+      pickup_otp_verified: false,
       statusHistory: [{ status: 'placed', timestamp: new Date().toISOString() }],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

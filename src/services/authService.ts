@@ -1,7 +1,30 @@
 import supabase from './api';
+// Cross‑platform storage: use window.localStorage on web, fallback to React Native AsyncStorage
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export interface LoginPayload {
+export const storage = {
+  setItem: async (key: string, value: string) => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.setItem(key, value);
+    } else {
+      await AsyncStorage.setItem(key, value);
+    }
+  },
+  getItem: async (key: string) => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage.getItem(key);
+    } else {
+      return await AsyncStorage.getItem(key);
+    }
+  },
+  removeItem: async (key: string) => {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem(key);
+    } else {
+      await AsyncStorage.removeItem(key);
+    }
+  },
+};export interface LoginPayload {
   email: string;
   password: string;
 }
@@ -75,6 +98,10 @@ export const authService = {
       });
       if (error) throw new Error(error.message);
       if (!data.user) throw new Error('User not found');
+      // Ensure email is verified before proceeding
+      if (!data.user.email_confirmed_at) {
+        throw new Error('Email not verified. Please verify your email before logging in.');
+      }
 
       // Check if profile exists, otherwise heal by inserting it
       let profile = null;
@@ -192,13 +219,56 @@ export const authService = {
       return this.mockRegister(payload);
     }
     try {
-      const { data: { user }, error: userErr } = await supabase.auth.getUser();
-      if (userErr || !user) {
-        throw new Error('Not authenticated. Please verify your email first.');
+      // Attempt to get the current authenticated user
+      const { data: { user: authUser }, error: getUserErr } = await supabase.auth.getUser();
+      let user: any = authUser;
+      if (!user) {
+        // No active session, try signing in with the provided credentials
+        const { data: signInRes, error: signInErr } = await supabase.auth.signInWithPassword({
+          email: payload.email,
+          password: payload.password,
+          options: { data: { name: payload.name, phone: payload.phone } },
+        });
+        if (signInRes?.user) {
+          user = signInRes.user;
+        } else {
+          // Sign‑in failed – create a new auth user (sign‑up flow)
+          const { data: signUpRes, error: signUpErr } = await supabase.auth.signUp({
+            email: payload.email,
+            password: payload.password,
+            options: { data: { name: payload.name, phone: payload.phone } },
+          });
+          if (signUpErr) throw new Error(signUpErr.message);
+          // Obtain a session after sign‑up
+          const { data: sessionData, error: sessErr } = await supabase.auth.getSession();
+          if (sessErr) throw new Error(sessErr.message);
+          // Create profile row for the newly signed‑up user
+          const newUser = signUpRes.user;
+          const userRow = {
+            _id: newUser.id,
+            name: payload.name,
+            email: payload.email,
+            phone: payload.phone,
+            role: payload.role || 'customer',
+            avatar: '',
+            addresses: [],
+            isPhoneVerified: true,
+          };
+          const { error: insertErr } = await supabase.from('users').insert(userRow);
+          if (insertErr) throw new Error(insertErr.message);
+          const res = {
+            user: sanitizeUser(userRow),
+            token: sessionData?.access_token || '',
+          };
+          await storage.setItem(LOCAL_USER_KEY, JSON.stringify(res.user));
+          await storage.setItem(LOCAL_TOKEN_KEY, res.token);
+          return res;
+        }
       }
-
+      // At this point we have an authenticated user (from getUser or sign‑in)
+      const authUserFinal = user;
       const userRow = {
-        _id: user.id,
+        _id: authUserFinal.id,
         name: payload.name,
         email: payload.email,
         phone: payload.phone,
@@ -207,17 +277,15 @@ export const authService = {
         addresses: [],
         isPhoneVerified: true,
       };
-
-      const { error: insertErr } = await supabase.from('users').insert(userRow);
+      const { error: insertErr } = await supabase.from('users').upsert(userRow, { onConflict: '_id' });
       if (insertErr) throw new Error(insertErr.message);
-
       const { data: { session } } = await supabase.auth.getSession();
       const res = {
         user: sanitizeUser(userRow),
         token: session?.access_token || '',
       };
-      await AsyncStorage.setItem(LOCAL_USER_KEY, JSON.stringify(res.user));
-      await AsyncStorage.setItem(LOCAL_TOKEN_KEY, res.token);
+      await storage.setItem(LOCAL_USER_KEY, JSON.stringify(res.user));
+      await storage.setItem(LOCAL_TOKEN_KEY, res.token);
       return res;
     } catch (err: any) {
       console.error('Supabase Registration Error:', err);
@@ -309,7 +377,7 @@ export const authService = {
       }
 
       await supabase.from('otps').delete().eq('phone', phone);
-      await AsyncStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
+      await storage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
       return sanitizeUser(user);
     } catch (err) {
       if (otp !== '1234') {
@@ -318,7 +386,7 @@ export const authService = {
       const stored = await AsyncStorage.getItem(LOCAL_USER_KEY);
       let userObj = stored ? JSON.parse(stored) : { ...DEFAULT_MOCK_USER, phone };
       userObj.isPhoneVerified = true;
-      await AsyncStorage.setItem(LOCAL_USER_KEY, JSON.stringify(userObj));
+      await storage.setItem(LOCAL_USER_KEY, JSON.stringify(userObj));
       return sanitizeUser(userObj);
     }
   },
@@ -387,7 +455,7 @@ export const authService = {
         .single();
 
       if (profileErr) throw new Error(profileErr.message);
-      await AsyncStorage.setItem(LOCAL_USER_KEY, JSON.stringify(profile));
+      await storage.setItem(LOCAL_USER_KEY, JSON.stringify(profile));
       return sanitizeUser(profile);
     } catch (err) {
       const stored = await AsyncStorage.getItem(LOCAL_USER_KEY);
