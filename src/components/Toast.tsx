@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Text, Animated, TouchableOpacity } from 'react-native';
 import { useToastStore } from '@/stores/useToastStore';
+import { theme } from '@/theme/theme';
+
 
 export const Toast: React.FC = () => {
   const { message, visible, type, hideToast } = useToastStore();
@@ -32,7 +34,6 @@ export const Toast: React.FC = () => {
         top: 60, // Safely below notches and status bars
         left: 20,
         right: 20,
-        backgroundColor: '#1E293B', // Sleek slate grey for high contrast
         borderRadius: 14,
         paddingHorizontal: 16,
         paddingVertical: 14,
@@ -41,10 +42,8 @@ export const Toast: React.FC = () => {
         alignItems: 'center',
         zIndex: 99999,
         elevation: 99999,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.22,
-        shadowRadius: 8,
+        backgroundColor: type === 'error' ? '#EF4444' : type === 'info' ? '#3B82F6' : '#10B981',
+        ...theme.shadows.boxShadow('#000'),
         transform: [{ translateY }],
       }}
     >
@@ -56,7 +55,7 @@ export const Toast: React.FC = () => {
           fontSize: 14,
           color: '#FFFFFF',
           fontWeight: '700',
-          fontFamily: 'Outfit',
+          fontFamily: theme.fonts.body,
           flex: 1,
         }}
       >

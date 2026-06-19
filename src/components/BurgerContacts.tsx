@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet, Animated, Dimensions, Easing, BackHandler } from 'react-native';
 import { stores } from '@/stores';
@@ -260,7 +261,7 @@ const styles = StyleSheet.create({
   drawer: {
     width: DRAWER_WIDTH,
     height: '100%',
-    backgroundColor: '#0F5B35',
+    backgroundColor: theme.colors.primaryGreen,
     paddingTop: 50,
     paddingBottom: 25,
     paddingHorizontal: 16,
@@ -302,7 +303,7 @@ const styles = StyleSheet.create({
   avatarLetter: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#0F5B35',
+    color: theme.colors.primaryGreen,
     fontFamily: 'Outfit',
   },
   avatar: {
@@ -319,7 +320,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#4CAF50',
     borderWidth: 2,
-    borderColor: '#0F5B35',
+    borderColor: theme.colors.primaryGreen,
   },
   profileInfo: {
     flex: 1,

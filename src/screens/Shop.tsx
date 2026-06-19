@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import Svg, { Line, Polyline, Circle, Path, Polygon } from 'react-native-svg';
@@ -11,7 +12,7 @@ import { restaurantService } from '@/services/restaurantService';
 
 // Heart Wishlist toggle icon
 const HeartIcon: React.FC<{ active: boolean }> = ({ active }) => (
-  <Svg width={20} height={20} viewBox="0 0 24 24" fill={active ? '#FF2121' : 'none'} stroke={active ? '#FF2121' : '#7E8B97'} strokeWidth={2}>
+  <Svg width={20} height={20} viewBox="0 0 24 24" fill={active ? '#FF2121' : 'none'} stroke={active ? '#FF2121' : theme.colors.lightText} strokeWidth={2}>
     <Path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
   </Svg>
 );
@@ -229,7 +230,7 @@ export const Shop: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
             <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
           </Svg>
         </TouchableOpacity>
@@ -240,19 +241,19 @@ export const Shop: React.FC = () => {
       {/* Search Input */}
       <View style={styles.searchSection}>
         <View style={styles.searchBar}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#7E8B97" strokeWidth={2.2}>
+          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={theme.colors.lightText} strokeWidth={2.2}>
             <Circle cx={11} cy={11} r={8} /><Line x1={21} y1={21} x2={16.65} y2={16.65} />
           </Svg>
           <TextInput
             placeholder="Search restaurants, dishes, cuisines..."
-            placeholderTextColor="#7E8B97"
+            placeholderTextColor={theme.colors.lightText}
             style={styles.searchInput}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Text style={{ fontSize: 16, color: '#7E8B97', fontWeight: 'bold' }}>✕</Text>
+              <Text style={{ fontSize: 16, color: theme.colors.lightText, fontWeight: 'bold' }}>✕</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -260,7 +261,7 @@ export const Shop: React.FC = () => {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#0F5B35" />
+          <ActivityIndicator size="large" color={theme.colors.primaryGreen} />
         </View>
       ) : (
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -354,8 +355,8 @@ export const Shop: React.FC = () => {
             <View>
               {searching ? (
                 <View style={{ marginVertical: 30, alignItems: 'center' }}>
-                  <ActivityIndicator size="small" color="#0F5B35" />
-                  <Text style={{ fontSize: 13, color: '#7E8B97', marginTop: 8, fontFamily: 'Outfit' }}>Searching...</Text>
+                  <ActivityIndicator size="small" color={theme.colors.primaryGreen} />
+                  <Text style={{ fontSize: 13, color: theme.colors.lightText, marginTop: 8, fontFamily: 'Outfit' }}>Searching...</Text>
                 </View>
               ) : (
                 <>
@@ -434,50 +435,50 @@ export const Shop: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   backBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   searchSection: { paddingHorizontal: 20, marginVertical: 12 },
-  searchBar: { backgroundColor: '#F4F6F8', borderRadius: 16, flexDirection: 'row', alignItems: 'center', height: 48, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E2E8F0', gap: 10 },
-  searchInput: { flex: 1, fontSize: 14, color: '#1E2022', fontFamily: 'Outfit', paddingVertical: 0 },
+  searchBar: { backgroundColor: theme.colors.warmWhite, borderRadius: 16, flexDirection: 'row', alignItems: 'center', height: 48, paddingHorizontal: 16, borderWidth: 1, borderColor: theme.colors.border, gap: 10 },
+  searchInput: { flex: 1, fontSize: 14, color: theme.colors.primaryText, fontFamily: 'Outfit', paddingVertical: 0 },
   categoriesContainer: { paddingHorizontal: 20, gap: 10, alignItems: 'center' },
-  categoryBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 10, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' },
-  categoryBtnActive: { borderColor: '#0F5B35', backgroundColor: '#0F5B35' },
-  categoryText: { fontSize: 13, fontWeight: '600', color: '#1E2022', fontFamily: 'Outfit' },
+  categoryBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: '#FFFFFF' },
+  categoryBtnActive: { borderColor: theme.colors.primaryGreen, backgroundColor: theme.colors.primaryGreen },
+  categoryText: { fontSize: 13, fontWeight: '600', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   categoryTextActive: { color: '#FFFFFF' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', height: 300 },
   sectionHeader: { paddingHorizontal: 20, marginTop: 18, marginBottom: 10 },
-  sectionTitle: { fontSize: 16, fontWeight: '800', color: '#1E2022', fontFamily: 'Outfit' },
+  sectionTitle: { fontSize: 16, fontWeight: '800', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   verticalListContainer: { paddingHorizontal: 20, gap: 16 },
-  restaurantCard: { width: '100%', backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden', position: 'relative' },
+  restaurantCard: { width: '100%', backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: theme.colors.border, overflow: 'hidden', position: 'relative' },
   restaurantImage: { width: '100%', height: 135 },
   restaurantRating: { position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, flexDirection: 'row', alignItems: 'center', gap: 3 },
-  restaurantRatingText: { fontSize: 11, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  restaurantRatingText: { fontSize: 11, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   restaurantDetails: { padding: 14 },
-  restaurantName: { fontSize: 16, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
-  couponTag: { backgroundColor: 'rgba(15,91,53,0.08)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, fontSize: 10, fontWeight: '800', color: '#0F5B35', fontFamily: 'Outfit' },
-  restaurantCuisine: { fontSize: 12, color: '#7E8B97', fontFamily: 'Outfit', marginVertical: 4, fontWeight: '500' },
-  restaurantMeta: { fontSize: 11, color: '#1E2022', fontFamily: 'Outfit', fontWeight: '600' },
+  restaurantName: { fontSize: 16, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
+  couponTag: { backgroundColor: 'rgba(15,91,53,0.08)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, fontSize: 10, fontWeight: '800', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
+  restaurantCuisine: { fontSize: 12, color: theme.colors.lightText, fontFamily: 'Outfit', marginVertical: 4, fontWeight: '500' },
+  restaurantMeta: { fontSize: 11, color: theme.colors.primaryText, fontFamily: 'Outfit', fontWeight: '600' },
   verticalRowsContainer: { paddingHorizontal: 20, gap: 12 },
-  dishRowCard: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', gap: 12 },
+  dishRowCard: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: theme.colors.border, gap: 12 },
   dishRowImage: { width: 60, height: 60, borderRadius: 12 },
   dishRowInfo: { flex: 1 },
-  dishRowName: { fontSize: 14, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 2 },
-  dishRowDesc: { fontSize: 11, color: '#7E8B97', fontFamily: 'Outfit', marginBottom: 4 },
-  dishRowPrice: { fontSize: 13, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
+  dishRowName: { fontSize: 14, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 2 },
+  dishRowDesc: { fontSize: 11, color: theme.colors.lightText, fontFamily: 'Outfit', marginBottom: 4 },
+  dishRowPrice: { fontSize: 13, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
   dishRowAction: { width: 100 },
   listContainer: { paddingHorizontal: 14 },
   rowWrapper: { justifyContent: 'space-between', marginBottom: 14 },
-  gridCard: { width: '48%', backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden', position: 'relative' },
+  gridCard: { width: '48%', backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: theme.colors.border, overflow: 'hidden', position: 'relative' },
   gridImage: { width: '100%', height: 110 },
   favBtn: { position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: 18, padding: 6, zIndex: 10 },
   gridDetails: { padding: 10 },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginBottom: 4 },
-  ratingText: { fontSize: 10, color: '#7E8B97' },
-  cookTime: { fontSize: 10, color: '#7E8B97', marginLeft: 'auto' },
-  cardName: { fontSize: 14, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 2, textTransform: 'capitalize' },
-  cardPrice: { fontSize: 13, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
+  ratingText: { fontSize: 10, color: theme.colors.lightText },
+  cookTime: { fontSize: 10, color: theme.colors.lightText, marginLeft: 'auto' },
+  cardName: { fontSize: 14, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 2, textTransform: 'capitalize' },
+  cardPrice: { fontSize: 13, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
   emptyContainer: { alignItems: 'center', justifyContent: 'center', padding: 40 },
-  emptyText: { fontSize: 15, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 4 },
-  emptySub: { fontSize: 12, color: '#7E8B97', fontFamily: 'Outfit', textAlign: 'center' },
+  emptyText: { fontSize: 15, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 4 },
+  emptySub: { fontSize: 12, color: theme.colors.lightText, fontFamily: 'Outfit', textAlign: 'center' },
 });

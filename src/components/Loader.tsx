@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { constants } from '@/constants';
+import { theme } from '@/theme/theme';
 
 export const Loader: React.FC = () => (
   <View style={styles.container}>
-    <ActivityIndicator size="large" color={constants.colors.SEA_GREEN_COLOR} />
+    <ActivityIndicator size="large" color={theme.colors.primaryGreen} />
   </View>
 );
 

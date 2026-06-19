@@ -1,9 +1,25 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { stores } from '@/stores';
-import { DishType } from '@/types';
-import { constants } from '@/constants';
 import { hooks } from '@/hooks';
+import { stores } from '@/stores';
+import { constants } from '@/constants';
+import { DishType } from '@/types';
+import { theme } from '@/theme/theme';
+
+const styles = StyleSheet.create({
+  btn: { backgroundColor: theme.colors.softSuccessBg, height: 32, borderRadius: 8, width: '100%', alignItems: 'center', justifyContent: 'center' },
+  btnText: { fontSize: 12, color: theme.colors.primaryGreen, fontWeight: '700', fontFamily: 'Outfit' },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 6 },
+  column: { flexDirection: 'column', alignItems: 'center', width: '100%', gap: 4 },
+  qtyContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.warmWhite, borderRadius: 8, borderWidth: 1, borderColor: theme.colors.border, flex: 1.1, justifyContent: 'space-between', paddingHorizontal: 6, height: 32 },
+  qtyContainerVertical: { width: '100%', flex: 0 },
+  qtyBtn: { padding: 4 },
+  qtyBtnText: { fontSize: 14, fontWeight: 'bold', color: theme.colors.primaryGreen },
+  qtyText: { fontSize: 12, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
+  goBtn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 8, height: 32, flex: 1.3, alignItems: 'center', justifyContent: 'center' },
+  goBtnVertical: { width: '100%', flex: 0, height: 26, borderRadius: 6 },
+  goBtnText: { fontSize: 11, color: '#FFFFFF', fontWeight: '700', fontFamily: 'Outfit' },
+});
 
 type Props = { dish: DishType; vertical?: boolean };
 
@@ -48,17 +64,4 @@ export const AddToCart: React.FC<Props> = ({ dish, vertical }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  btn: { backgroundColor: '#E8F9F1', height: 32, borderRadius: 8, width: '100%', alignItems: 'center', justifyContent: 'center' },
-  btnText: { fontSize: 12, color: constants.colors.SEA_GREEN_COLOR, fontWeight: '700', fontFamily: 'Outfit' },
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 6 },
-  column: { flexDirection: 'column', alignItems: 'center', width: '100%', gap: 4 },
-  qtyContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F4F6F8', borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0', flex: 1.1, justifyContent: 'space-between', paddingHorizontal: 6, height: 32 },
-  qtyContainerVertical: { width: '100%', flex: 0 },
-  qtyBtn: { padding: 4 },
-  qtyBtnText: { fontSize: 14, fontWeight: 'bold', color: '#0F5B35' },
-  qtyText: { fontSize: 12, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
-  goBtn: { backgroundColor: '#0F5B35', borderRadius: 8, height: 32, flex: 1.3, alignItems: 'center', justifyContent: 'center' },
-  goBtnVertical: { width: '100%', flex: 0, height: 26, borderRadius: 6 },
-  goBtnText: { fontSize: 11, color: '#FFFFFF', fontWeight: '700', fontFamily: 'Outfit' },
-});
+// Duplicate style block removed – using earlier styles

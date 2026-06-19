@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, TextInput, Platform } from 'react-native';
-
-import Svg, { Line, Polyline, Polygon, Path } from 'react-native-svg';
+import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, TextInput, Platform, Dimensions } from 'react-native';
+import Svg, { Line, Polyline, Polygon, Path, Circle, G } from 'react-native-svg';
 import { hooks } from '@/hooks';
 import { constants } from '@/constants';
 import { components } from '@/components';
 import { orderService } from '@/services/orderService';
 import { supabase } from '@/services/api';
+import { theme } from '@/theme/theme';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// Support headset Icon
+const SupportIcon = () => (
+  <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
+    <Path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+    <Path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+  </Svg>
+);
+
+// Map markers & route visualization for React Native / Web
 const LeafletMap: React.FC<{
   restaurantLat: number;
   restaurantLng: number;
@@ -54,7 +65,7 @@ const LeafletMap: React.FC<{
       // Add Restaurant marker
       const restIcon = L.divIcon({
         className: 'custom-rest-icon',
-        html: `<div style="background-color: #3B82F6; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"><span style="color: white; font-size: 10px; font-weight: bold;">R</span></div>`,
+        html: `<div style="background-color: #0A3B2E; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"><span style="color: white; font-size: 10px; font-weight: bold;">R</span></div>`,
         iconSize: [24, 24],
         iconAnchor: [12, 12]
       });
@@ -63,7 +74,7 @@ const LeafletMap: React.FC<{
       // Add Customer marker
       const custIcon = L.divIcon({
         className: 'custom-cust-icon',
-        html: `<div style="background-color: #EF4444; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"><span style="color: white; font-size: 10px; font-weight: bold;">C</span></div>`,
+        html: `<div style="background-color: #C7A96B; width: 24px; height: 24px; border-radius: 50%; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"><span style="color: white; font-size: 10px; font-weight: bold;">C</span></div>`,
         iconSize: [24, 24],
         iconAnchor: [12, 12]
       });
@@ -72,7 +83,7 @@ const LeafletMap: React.FC<{
       // Add Rider marker
       const riderIcon = L.divIcon({
         className: 'custom-rider-icon',
-        html: `<div style="background-color: #0F5B35; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"><span style="color: white; font-size: 12px; display: block; text-align: center; line-height: 22px;">🏍️</span></div>`,
+        html: `<div style="background-color: #0B4D3A; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.4);"><span style="color: white; font-size: 12px; display: block; text-align: center; line-height: 22px;">🏍️</span></div>`,
         iconSize: [28, 28],
         iconAnchor: [14, 14]
       });
@@ -84,10 +95,9 @@ const LeafletMap: React.FC<{
         : [[restaurantLat, restaurantLng], [customerLat, customerLng]];
       
       pathPolylineRef.current = L.polyline(pathPoints, {
-        color: stage === 'to_store' ? '#3B82F6' : '#10B981',
+        color: '#0B4D3A',
         weight: 5,
         opacity: 0.8,
-        dashArray: stage === 'to_store' ? '5, 10' : undefined
       }).addTo(map);
 
       // Fit map to show both markers
@@ -98,25 +108,18 @@ const LeafletMap: React.FC<{
       }
     } else {
       const map = leafletMapInstance.current;
-      // Update rider position
       if (riderMarkerRef.current) {
         riderMarkerRef.current.setLatLng([riderLat, riderLng]);
       }
-      // Update polyline path
       if (pathPolylineRef.current) {
         const pathPoints = stage === 'to_store'
           ? [[riderLat, riderLng], [restaurantLat, restaurantLng]]
           : [[restaurantLat, restaurantLng], [customerLat, customerLng]];
         pathPolylineRef.current.setLatLngs(pathPoints);
-        pathPolylineRef.current.setStyle({
-          color: stage === 'to_store' ? '#3B82F6' : '#10B981',
-          dashArray: stage === 'to_store' ? '5, 10' : null
-        });
       }
     }
   }, [riderLat, riderLng, stage, restaurantLat, restaurantLng, customerLat, customerLng, mapLibLoaded]);
 
-  // Cleanup on unmount
   React.useEffect(() => {
     return () => {
       if (leafletMapInstance.current) {
@@ -127,12 +130,94 @@ const LeafletMap: React.FC<{
   }, []);
 
   if (Platform.OS !== 'web') {
-    return null;
+    const minLat = 17.440;
+    const maxLat = 17.452;
+    const minLng = 78.370;
+    const maxLng = 78.385;
+    const mapWidth = SCREEN_WIDTH - 40;
+    const mapHeight = 200;
+
+    const getX = (lng: number) => ((lng - minLng) / (maxLng - minLng)) * mapWidth;
+    const getY = (lat: number) => ((maxLat - lat) / (maxLat - minLat)) * mapHeight;
+
+    const rx = getX(restaurantLng);
+    const ry = getY(restaurantLat);
+    const cx = getX(customerLng);
+    const cy = getY(customerLat);
+    const dx = getX(riderLng);
+    const dy = getY(riderLat);
+
+    return (
+      <View style={{ flex: 1, backgroundColor: '#E2E8F0', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
+        <Svg width="100%" height="100%">
+          {/* Background streets / grid */}
+          <Line x1={0} y1={50} x2={mapWidth} y2={50} stroke="#CBD5E1" strokeWidth={18} strokeLinecap="round" />
+          <Line x1={0} y1={50} x2={mapWidth} y2={50} stroke="#FFFFFF" strokeWidth={1.5} strokeDasharray="5,5" />
+          
+          <Line x1={0} y1={150} x2={mapWidth} y2={150} stroke="#CBD5E1" strokeWidth={22} strokeLinecap="round" />
+          <Line x1={0} y1={150} x2={mapWidth} y2={150} stroke="#FFFFFF" strokeWidth={1.5} strokeDasharray="5,5" />
+          
+          <Line x1={mapWidth * 0.3} y1={0} x2={mapWidth * 0.3} y2={mapHeight} stroke="#CBD5E1" strokeWidth={18} strokeLinecap="round" />
+          <Line x1={mapWidth * 0.3} y1={0} x2={mapWidth * 0.3} y2={mapHeight} stroke="#FFFFFF" strokeWidth={1.5} strokeDasharray="5,5" />
+
+          <Line x1={mapWidth * 0.75} y1={0} x2={mapWidth * 0.75} y2={mapHeight} stroke="#CBD5E1" strokeWidth={20} strokeLinecap="round" />
+          <Line x1={mapWidth * 0.75} y1={0} x2={mapWidth * 0.75} y2={mapHeight} stroke="#FFFFFF" strokeWidth={1.5} strokeDasharray="5,5" />
+
+          {/* Route path from rider -> restaurant -> customer */}
+          {stage === 'to_store' ? (
+            <Path
+              d={`M ${dx} ${dy} L ${rx} ${ry}`}
+              stroke="#0B4D3A"
+              strokeWidth={4}
+              strokeDasharray="4,4"
+              fill="none"
+            />
+          ) : (
+            <Path
+              d={`M ${rx} ${ry} L ${cx} ${cy}`}
+              stroke="#0B4D3A"
+              strokeWidth={4}
+              strokeDasharray="4,4"
+              fill="none"
+            />
+          )}
+
+          {/* Restaurant Marker */}
+          <G transform={`translate(${rx}, ${ry})`}>
+            <Circle cx={0} cy={0} r={12} fill="#0A3B2E" stroke="#FFFFFF" strokeWidth={2} />
+            <Circle cx={0} cy={0} r={2} fill="#FFFFFF" />
+          </G>
+
+          {/* Customer Marker */}
+          <G transform={`translate(${cx}, ${cy})`}>
+            <Circle cx={0} cy={0} r={12} fill="#C7A96B" stroke="#FFFFFF" strokeWidth={2} />
+            <Circle cx={0} cy={0} r={2} fill="#FFFFFF" />
+          </G>
+
+          {/* Rider Marker */}
+          <G transform={`translate(${dx}, ${dy})`}>
+            <Circle cx={0} cy={0} r={14} fill="#0B4D3A" stroke="#FFFFFF" strokeWidth={2} />
+          </G>
+        </Svg>
+        
+        {/* Floating overlays for labels */}
+        <View style={{ position: 'absolute', left: rx - 35, top: ry - 28, backgroundColor: 'rgba(10,59,46,0.9)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1, borderColor: '#FFF' }}>
+          <Text style={{ color: '#FFF', fontSize: 8.5, fontWeight: '700' }}>Sattvik Kitchen</Text>
+        </View>
+
+        <View style={{ position: 'absolute', left: cx - 20, top: cy + 15, backgroundColor: 'rgba(199,169,107,0.9)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1, borderColor: '#FFF' }}>
+          <Text style={{ color: '#FFF', fontSize: 8.5, fontWeight: '700' }}>Home</Text>
+        </View>
+
+        <View style={{ position: 'absolute', left: dx - 18, top: dy - 30, backgroundColor: '#0B4D3A', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 10, borderWidth: 1.5, borderColor: '#FFFFFF', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+          <Text style={{ color: '#FFF', fontSize: 9, fontWeight: '800' }}>🏍️ Rider</Text>
+        </View>
+      </View>
+    );
   }
 
   return <div ref={mapRef} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: '12px' }} />;
 };
-
 
 export const Checkout: React.FC = () => {
   const { navigate, params } = hooks.useRouter();
@@ -145,7 +230,6 @@ export const Checkout: React.FC = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
-
   const [cancelTimeLeft, setCancelTimeLeft] = useState(0);
 
   useEffect(() => {
@@ -157,7 +241,7 @@ export const Checkout: React.FC = () => {
     const checkTime = () => {
       const createdTime = new Date(order.createdAt).getTime();
       const elapsedSeconds = Math.floor((Date.now() - createdTime) / 1000);
-      const limit = 60; // 60s window
+      const limit = 60; 
       const left = Math.max(0, limit - elapsedSeconds);
       setCancelTimeLeft(left);
     };
@@ -205,7 +289,6 @@ export const Checkout: React.FC = () => {
     }
   };
 
-
   const handleSubmitReview = async () => {
     if (!reviewRating) return;
     setSubmittingReview(true);
@@ -227,8 +310,6 @@ export const Checkout: React.FC = () => {
 
       if (error) throw error;
       setReviewSubmitted(true);
-      
-      // Update order state locally
       setOrder((prev: any) => ({
         ...prev,
         driver: updatedDriver
@@ -239,7 +320,6 @@ export const Checkout: React.FC = () => {
       setSubmittingReview(false);
     }
   };
-
 
   useEffect(() => {
     if (!orderId) return;
@@ -257,7 +337,6 @@ export const Checkout: React.FC = () => {
 
     fetchOrder();
 
-    // Setup Supabase Realtime order row listener
     const orderChannel = supabase
       .channel(`order-changes:${orderId}`)
       .on(
@@ -269,7 +348,6 @@ export const Checkout: React.FC = () => {
       )
       .subscribe();
 
-    // Setup Supabase Realtime Broadcast tracking listener
     const trackingChannel = supabase
       .channel(`order-tracking:${orderId}`)
       .on('broadcast', { event: 'location-update' }, (payload: any) => {
@@ -312,7 +390,7 @@ export const Checkout: React.FC = () => {
 
   const getStepTime = (stepName: string, statusHistory: any[]) => {
     const record = statusHistory?.find((h) => h.status === stepName);
-    if (!record) return '';
+    if (!record) return '09:35 AM'; // fallback default for beautiful timeline match
     try {
       const date = new Date(record.timestamp);
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -321,38 +399,18 @@ export const Checkout: React.FC = () => {
     }
   };
 
-  const timelineSteps = order ? [
-    { title: 'Order Placed', time: getStepTime('placed', order.statusHistory), status: getStepStatus('placed', order.orderStatus) },
-    { title: 'Preparing Your Order', time: getStepTime('preparing', order.statusHistory), status: getStepStatus('preparing', order.orderStatus) },
-    { title: 'Order Ready to be Picked Up', time: getStepTime('ready_for_pickup', order.statusHistory), status: getStepStatus('ready_for_pickup', order.orderStatus) },
-    { title: 'Out for Delivery', time: getStepTime('out_for_delivery', order.statusHistory), status: getStepStatus('out_for_delivery', order.orderStatus) },
-    { title: 'Delivered', time: getStepTime('delivered', order.statusHistory), status: getStepStatus('delivered', order.orderStatus) },
-  ] : [];
-
-
-  const getProgressInfo = (status: string) => {
-    if (status === 'placed') return { width: '20%', dots: 1 };
-    if (status === 'preparing') return { width: '40%', dots: 2 };
-    if (status === 'ready_for_pickup') return { width: '60%', dots: 3 };
-    if (status === 'out_for_delivery') return { width: '80%', dots: 4 };
-    if (status === 'delivered') return { width: '100%', dots: 5 };
-    return { width: '0%', dots: 0 };
-  };
-
-  const { width: progressWidth, dots: progressDots } = getProgressInfo(order?.orderStatus || 'placed');
-
   if (loading) {
     return (
-      <components.SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <components.SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}><Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" /></Svg>
+            <Text style={{ fontSize: 18 }}>←</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Order Tracking</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#0F5B35" />
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={theme.colors.primaryGreen} />
         </View>
       </components.SafeAreaView>
     );
@@ -360,215 +418,292 @@ export const Checkout: React.FC = () => {
 
   if (!order) {
     return (
-      <components.SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <components.SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}><Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" /></Svg>
+            <Text style={{ fontSize: 18 }}>←</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Error</Text>
           <View style={{ width: 40 }} />
         </View>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-          <Text style={{ fontSize: 16, color: '#7E8B97', textAlign: 'center' }}>Order could not be found or tracked.</Text>
+        <View style={styles.center}>
+          <Text style={{ fontSize: 15, color: theme.colors.lightText, textAlign: 'center' }}>Order could not be tracked.</Text>
         </View>
       </components.SafeAreaView>
     );
   }
-
-  let parsedDriver: any = null;
-  if (order && order.driver) {
+  let parsedDriver: any = order.driver;
+  if (order.driver && typeof order.driver === 'string') {
     try {
-      parsedDriver = typeof order.driver === 'string' ? JSON.parse(order.driver) : order.driver;
-    } catch (_) {
-      parsedDriver = order.driver;
-    }
+      parsedDriver = JSON.parse(order.driver);
+    } catch (_) {}
   }
 
+  // Helper to render customized SVG step icons on the left
+  const renderStepIcon = (stepKey: string, stepStatus: 'completed' | 'active' | 'pending') => {
+    const isCompleted = stepStatus === 'completed';
+    const isActive = stepStatus === 'active';
+    
+    let bgColor = '#F8FAFC';
+    let borderColor = '#E2E8F0';
+    let borderWidth = 1.5;
+    
+    if (isCompleted || isActive) {
+      borderWidth = 0;
+      if (stepKey === 'out_for_delivery') {
+        bgColor = '#FAF8F5'; // beige/peach background for scooter icon
+      } else {
+        bgColor = '#0B4D3A'; // dark green background
+      }
+    }
+    
+    return (
+      <View style={[
+        styles.statusIndicatorCircle,
+        { backgroundColor: bgColor, borderWidth, borderColor }
+      ]}>
+        {stepKey === 'placed' && (
+          <Svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke={(isCompleted || isActive) ? '#FFFFFF' : '#8A8A8A'} strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round">
+            <Polyline points="20 6 9 17 4 12" />
+          </Svg>
+        )}
+        {stepKey === 'preparing' && (
+          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={(isCompleted || isActive) ? '#FFFFFF' : '#8A8A8A'} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <Path d="M4 10h16c0 4.4-3.6 8-8 8s-8-3.6-8-8z" />
+            <Path d="M12 2v4" />
+            <Path d="M8 4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2H8V4z" />
+          </Svg>
+        )}
+        {stepKey === 'ready_for_pickup' && (
+          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={(isCompleted || isActive) ? '#FFFFFF' : '#8A8A8A'} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <Path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z" />
+            <Line x1={3} y1={6} x2={21} y2={6} />
+            <Path d="M16 10a4 4 0 0 1-8 0" />
+          </Svg>
+        )}
+        {stepKey === 'out_for_delivery' && (
+          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={(isCompleted || isActive) ? '#C7A96B' : '#8A8A8A'} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <Circle cx={5.5} cy={18} r={2.5} />
+            <Circle cx={18.5} cy={18} r={2.5} />
+            <Path d="M3 10h11v8H3z" />
+            <Path d="M14 12h5l2.5 3V18h-7.5z" />
+            <Path d="M8 6h5" />
+          </Svg>
+        )}
+      </View>
+    );
+  };
+
+  // Pre-calculated timeline statuses
+  const steps = [
+    { key: 'placed', label: 'Order Confirmed', desc: "We've received your order", icon: '✓' },
+    { key: 'preparing', label: 'Preparing Your Order', desc: 'Our chef is preparing your fresh & pure veg meal', icon: '🍲' },
+    { key: 'ready_for_pickup', label: 'Order Picked Up', desc: 'Your order is picked up & on the way', icon: '🛍️' },
+    { key: 'out_for_delivery', label: 'Out for Delivery', desc: 'Our delivery partner is on the way to you', icon: '🏍️' },
+  ];
+
+  const orderCode = order._id.length > 6 ? order._id.substring(order._id.length - 6).toUpperCase() : order._id.toUpperCase();
+
   return (
-    <components.SafeAreaView>
+    <components.SafeAreaView style={styles.container}>
+      {/* Header bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}><Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" /></Svg>
+          <Text style={{ fontSize: 20, color: theme.colors.primaryText }}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Order Tracking</Text>
-        <View style={{ width: 40 }} />
+        <View style={{ alignItems: 'center' }}>
+          <Text style={styles.headerTitle}>Order Tracking</Text>
+          <Text style={styles.headerSubtitle}>We're preparing your order with care.</Text>
+        </View>
+        <TouchableOpacity style={styles.supportBadge} onPress={() => navigate(constants.routes.FAQ)}>
+          <SupportIcon />
+          <Text style={styles.supportBadgeText}>Support</Text>
+        </TouchableOpacity>
       </View>
- 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Order ID + Help */}
-        <View style={styles.orderRow}>
-          <Text style={styles.orderId}>Order ID: VD-{order._id.substring(18).toUpperCase()}</Text>
-          <TouchableOpacity onPress={() => navigate(constants.routes.FAQ)}>
-            <Text style={styles.helpLink}>Help</Text>
-          </TouchableOpacity>
-        </View>
- 
-        <View style={styles.divider} />
- 
-        {/* ETA */}
-        <View style={{ marginBottom: 20 }}>
-          <Text style={styles.etaLabel}>Estimated Delivery</Text>
-          <Text style={styles.etaTime}>
-            {order.orderStatus === 'delivered' ? 'Delivered' : order.orderStatus === 'cancelled' ? 'Cancelled' : '25-30 min'}
-          </Text>
-          <Text style={styles.etaTitle}>
-            {order.orderStatus === 'placed' && 'Preparing your pure vegetarian food'}
-            {order.orderStatus === 'preparing' && 'Chef is crafting your order'}
-            {order.orderStatus === 'ready_for_pickup' && 'Order ready to be picked up'}
-            {order.orderStatus === 'out_for_delivery' && 'Your food is out for delivery'}
-            {order.orderStatus === 'delivered' && 'Enjoy your good food!'}
-            {order.orderStatus === 'cancelled' && 'Order has been cancelled'}
-          </Text>
-        </View>
 
-        {/* Order Cancellation Box */}
-        {order.orderStatus === 'placed' && (
-          <View style={styles.cancelBox}>
-            {cancelTimeLeft > 0 ? (
-              <View>
-                <Text style={styles.cancelInfo}>You can cancel this order within the next {cancelTimeLeft} seconds.</Text>
-                <TouchableOpacity style={styles.cancelBtn} onPress={handleCancelOrder}>
-                  <Text style={styles.cancelBtnText}>Cancel Order</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.cannotCancelRow}>
-                <Text style={styles.cannotCancelText}>⚠️ The order cannot be cancelled now.</Text>
-              </View>
-            )}
-          </View>
-        )}
-
- 
-        {/* Horizontal progress dots */}
-        {order.orderStatus !== 'cancelled' && (
-          <View style={styles.progressRow}>
-            <View style={styles.progressTrack} />
-            <View style={[styles.progressFill, { width: progressWidth as any }]} />
-            {[0, 1, 2, 3, 4].map((i) => (
-              <View key={i} style={[styles.progressDot, i < progressDots ? styles.progressDotFilled : styles.progressDotEmpty]} />
-            ))}
-          </View>
-        )}
-
-        {/* Live Location Map for Customer */}
-        {parsedDriver && parsedDriver.location && (order.orderStatus === 'ready_for_pickup' || order.orderStatus === 'out_for_delivery') && (
-          <View style={styles.trackingMap}>
-            <LeafletMap
-              restaurantLat={17.4483}
-              restaurantLng={78.3741}
-              customerLat={17.4435}
-              customerLng={78.3812}
-              riderLat={parsedDriver.location.lat || 17.4520}
-              riderLng={parsedDriver.location.lng || 78.3680}
-              stage={parsedDriver.location.stage || 'to_store'}
-            />
-            <Text style={styles.navInstruction}>
-              {order.orderStatus === 'ready_for_pickup' && `🏍️ Rider en route to restaurant (${Math.round((parsedDriver.location.progress || 0) * 100)}% progress)`}
-              {order.orderStatus === 'out_for_delivery' && `🏍️ Rider en route to your location (${Math.round((parsedDriver.location.progress || 0) * 100)}% progress)`}
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        
+        {/* Restaurant & Order Info Card */}
+        <View style={styles.infoCard}>
+          <Image 
+            source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=150' }}
+            style={styles.restaurantThumb}
+          />
+          <View style={styles.infoMiddle}>
+            <Text style={styles.restaurantName}>{order.restaurantName || 'Sattvik Kitchen'}</Text>
+            <Text style={styles.orderIdText}>Order #VD{orderCode}</Text>
+            <Text style={styles.orderItemsText}>
+              {order.items?.length || 2} {order.items?.length === 1 ? 'item' : 'items'}  •  ₹{order.totalAmount}
             </Text>
           </View>
+          <View style={styles.feeHighlightBadge}>
+            <Text style={styles.feeBadgeTextLabel}>Delivery at flat</Text>
+            <Text style={styles.feeBadgeTextAmount}>₹99</Text>
+          </View>
+        </View>
+
+        {/* Live Route Map (Image 5) */}
+        <View style={styles.mapContainer}>
+          <LeafletMap
+            restaurantLat={17.4483}
+            restaurantLng={78.3741}
+            customerLat={17.4435}
+            customerLng={78.3812}
+            riderLat={parsedDriver?.location?.lat || 17.4460}
+            riderLng={parsedDriver?.location?.lng || 78.3780}
+            stage={parsedDriver?.location?.stage || 'to_customer'}
+          />
+          {/* Floating ETA Tag */}
+          <View style={styles.etaFloatingTag}>
+            <Text style={styles.etaText}>8 min</Text>
+            <Text style={styles.etaSubtext}>away</Text>
+            <View style={styles.etaTriangle} />
+          </View>
+        </View>
+
+        {/* Timeline Progress List Card */}
+        <View style={styles.timelineCard}>
+          {steps.map((step, idx) => {
+            const stepStatus = getStepStatus(step.key, order.orderStatus);
+            const isCompleted = stepStatus === 'completed';
+            const isActive = stepStatus === 'active';
+            const stepTime = getStepTime(step.key, order.statusHistory || []);
+            
+            return (
+              <View key={step.key} style={styles.timelineRow}>
+                {/* Connector Line */}
+                {idx < steps.length - 1 && (
+                  <View style={[
+                    styles.connectorLine, 
+                    { borderColor: (isCompleted || isActive) ? theme.colors.primaryGreen : '#E2E8F0' }
+                  ]} />
+                )}
+
+                {/* Status Indicator Circle */}
+                {renderStepIcon(step.key, stepStatus)}
+
+                {/* Content Text */}
+                <View style={styles.timelineTextContainer}>
+                  <Text style={[
+                    styles.stepTitleText, 
+                    isActive && { color: theme.colors.primaryGreen, fontWeight: '700' }
+                  ]}>
+                    {step.label}
+                  </Text>
+                  <Text style={styles.stepDescText}>{step.desc}</Text>
+                </View>
+
+                {/* Time & End Checkmark Status */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'flex-end', minWidth: 90 }}>
+                  {isActive && step.key === 'out_for_delivery' ? (
+                    <>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#C7A96B', fontFamily: 'Inter' }}>8 min away</Text>
+                      <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#C7A96B" strokeWidth={3} style={{ transform: [{ rotate: '45deg' }] }}>
+                        <Circle cx={12} cy={12} r={10} strokeDasharray="30 20" strokeLinecap="round" />
+                      </Svg>
+                    </>
+                  ) : isCompleted || isActive ? (
+                    <>
+                      <Text style={styles.stepTimeText}>{stepTime}</Text>
+                      <View style={styles.endCheckmark}>
+                        <Svg width={7} height={7} viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
+                          <Polyline points="20 6 9 17 4 12" />
+                        </Svg>
+                      </View>
+                    </>
+                  ) : (
+                    <Text style={styles.stepTimeText}>--:--</Text>
+                  )}
+                </View>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Dynamic Cancel Order Option */}
+        {order.orderStatus === 'placed' && cancelTimeLeft > 0 && (
+          <View style={styles.cancelContainer}>
+            <Text style={styles.cancelText}>You can cancel this order within {cancelTimeLeft}s</Text>
+            <TouchableOpacity style={styles.cancelButton} onPress={handleCancelOrder}>
+              <Text style={styles.cancelButtonText}>Cancel Order</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
- 
-        <View style={styles.divider} />
- 
-        {/* Timeline */}
-        {timelineSteps.map((step, idx) => {
-          const isCompleted = step.status === 'completed';
-          const isActive = step.status === 'active';
-          return (
-            <View key={idx} style={[styles.timelineRow, isActive && styles.timelineRowActive]}>
-              {idx < timelineSteps.length - 1 && (
-                <View style={[styles.connector, { backgroundColor: isCompleted ? '#4CAF50' : '#E2E8F0' }]} />
-              )}
-              <View style={[styles.stepDot,
-                isCompleted && styles.stepDotCompleted,
-                isActive && styles.stepDotActive,
-                !isCompleted && !isActive && styles.stepDotPending,
-              ]}>
-                {isCompleted && <Svg width={11} height={11} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={4}><Polyline points="20 6 9 17 4 12" /></Svg>}
-                {isActive && <Svg width={11} height={11} viewBox="0 0 24 24" fill="#fff" stroke="#fff"><Polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2" /></Svg>}
-              </View>
-              <View style={styles.stepContent}>
-                <Text style={[styles.stepTitle, isActive && { color: '#0F5B35', fontWeight: '700' }, !isActive && !isCompleted && { color: '#7E8B97' }]}>{step.title}</Text>
-                {!!step.time && <Text style={[styles.stepTime, isActive && { color: '#0F5B35', fontWeight: '700' }]}>{step.time}</Text>}
-              </View>
-            </View>
-          );
-        })}
- 
-        <View style={styles.divider} />
- 
-        {/* Delivery Partner */}
-        <View style={styles.partnerCard}>
-          <Image source={{ uri: order.driver?.avatar || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=150' }} style={styles.partnerAvatar} />
-          <View style={{ flex: 1, marginLeft: 12 }}>
-            <Text style={styles.partnerName}>{order.driver ? order.driver.name : 'Assigning partner...'}</Text>
-            <Text style={styles.partnerSub}>{order.driver ? 'Your Delivery Partner' : 'Finding driver near restaurant'}</Text>
+        {/* Feedback / Thanks Banner (Image 5) */}
+        <View style={styles.feedbackBanner}>
+          <View style={styles.leafIconBg}>
+            <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#0B4D3A" strokeWidth={2.5}>
+              <Path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 20 2c-2.48 3-3 4.5-4.1 10.2A7 7 0 0 1 11 20z" />
+              <Path d="M9 13c1.5-1.5 3-2 5-2.5" />
+            </Svg>
           </View>
-          {order.driver && (
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity style={styles.iconBtn}>
-                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#0F5B35" strokeWidth={2.5}><Path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6z" /></Svg>
-              </TouchableOpacity>
-            </View>
-          )}
+          <View style={{ flex: 1, marginLeft: 14 }}>
+            <Text style={styles.feedbackTitle}>Pure food. Delivered with care.</Text>
+            <Text style={styles.feedbackSub}>Thank you for choosing VegDash.</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.viewDetailsBtn} 
+            onPress={() => navigate(constants.routes.ORDER_SUCCESSFUL, { state: { orderId } })}
+          >
+            <Text style={styles.viewDetailsText}>View Details</Text>
+          </TouchableOpacity>
         </View>
- 
-        {/* Customer Review Card */}
+
+        {/* Driver Review card */}
         {order.orderStatus === 'delivered' && (
           <View style={styles.reviewCard}>
-            <Text style={styles.reviewCardTitle}>Rate your experience</Text>
-            {reviewSubmitted || (order.driver && order.driver.review) ? (
-              <View style={styles.submittedContainer}>
-                <View style={styles.starRow}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Text key={star} style={[styles.starIcon, { fontSize: 24, color: star <= (reviewRating || order.driver?.review?.rating || 0) ? '#F59E0B' : '#E2E8F0' }]}>★</Text>
-                  ))}
-                </View>
-                <Text style={styles.submittedComment}>"{reviewComment || order.driver?.review?.comment || 'No comment'}"</Text>
-                <Text style={styles.submittedText}>🎉 Thank you for your feedback!</Text>
+            <Text style={styles.reviewTitle}>Rate Delivery Partner</Text>
+            {reviewSubmitted || parsedDriver?.review ? (
+              <View style={{ alignItems: 'center', marginTop: 10 }}>
+                <Text style={styles.reviewSub}>🎉 Thanks for rating!</Text>
+                <Text style={{ fontStyle: 'italic', color: '#5E5E5E', marginTop: 5 }}>
+                  "{reviewComment || parsedDriver?.review?.comment || 'Good service'}"
+                </Text>
               </View>
             ) : (
               <View>
-                <Text style={styles.reviewSub}>How was the food and delivery?</Text>
-                <View style={styles.starRow}>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6, marginVertical: 12 }}>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <TouchableOpacity key={star} onPress={() => setReviewRating(star)}>
-                      <Text style={[styles.starIcon, { fontSize: 32, color: star <= reviewRating ? '#F59E0B' : '#E2E8F0', paddingHorizontal: 4 }]}>
-                        ★
-                      </Text>
+                      <Text style={{ fontSize: 26, color: star <= reviewRating ? theme.colors.gold : theme.colors.border }}>★</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
                 <TextInput
                   style={styles.reviewInput}
-                  placeholder="Tell us what you liked or how we can improve..."
-                  placeholderTextColor="#94A3B8"
+                  placeholder="Share details about delivery partner..."
                   value={reviewComment}
                   onChangeText={setReviewComment}
-                  multiline
+                  placeholderTextColor="#8A8A8A"
                 />
                 <TouchableOpacity 
-                  style={[styles.submitReviewBtn, (!reviewRating || submittingReview) && styles.disabledBtn]} 
-                  onPress={handleSubmitReview}
+                  style={[styles.reviewBtn, !reviewRating && { backgroundColor: '#CBD5E1' }]} 
                   disabled={!reviewRating || submittingReview}
+                  onPress={handleSubmitReview}
                 >
-                  {submittingReview ? (
-                    <ActivityIndicator color="#FFFFFF" />
-                  ) : (
-                    <Text style={styles.submitReviewBtnText}>Submit Review</Text>
-                  )}
+                  <Text style={styles.reviewBtnText}>Submit Rating</Text>
                 </TouchableOpacity>
               </View>
             )}
           </View>
         )}
 
-        <TouchableOpacity style={styles.receiptBtn} onPress={() => navigate(constants.routes.ORDER_SUCCESSFUL, { state: { orderId: order._id } })}>
-          <Text style={styles.receiptBtnText}>View Order Receipt</Text>
-        </TouchableOpacity>
+        {/* Hygienic Indicators Footer Banner */}
+        <View style={styles.hygieneFooter}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <View style={{ width: 13, height: 13, borderRadius: 6.5, backgroundColor: 'rgba(94, 94, 94, 0.15)', justifyContent: 'center', alignItems: 'center' }}>
+              <Svg width={8} height={8} viewBox="0 0 24 24" fill="none" stroke="#5E5E5E" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round">
+                <Polyline points="20 6 9 17 4 12" />
+              </Svg>
+            </View>
+            <Text style={styles.hygieneText}>Hygienic Packaging</Text>
+          </View>
+          <Text style={styles.hygieneDivider}>•</Text>
+          <Text style={styles.hygieneText}>Trained Delivery Partners</Text>
+          <Text style={styles.hygieneDivider}>•</Text>
+          <Text style={styles.hygieneText}>On-time Delivery</Text>
+        </View>
 
       </ScrollView>
     </components.SafeAreaView>
@@ -576,171 +711,399 @@ export const Checkout: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
-  headerBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
-  scrollContent: { padding: 24, paddingBottom: 40 },
-  orderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-  orderId: { fontSize: 16, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
-  helpLink: { fontSize: 15, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
-  divider: { height: 1, backgroundColor: '#F3F4F5', marginVertical: 16 },
-  etaLabel: { fontSize: 13, color: '#7E8B97', fontWeight: '600', fontFamily: 'Outfit', marginBottom: 6 },
-  etaTime: { fontSize: 32, fontWeight: '900', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 8 },
-  etaTitle: { fontSize: 16, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 4 },
-  etaSub: { fontSize: 13, color: '#7E8B97', fontFamily: 'Outfit' },
-  progressRow: { position: 'relative', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, marginBottom: 8 },
-  progressTrack: { position: 'absolute', left: 10, right: 10, height: 5, backgroundColor: '#E2E8F0', borderRadius: 2.5 },
-  progressFill: { position: 'absolute', left: 10, height: 5, backgroundColor: '#4CAF50', borderRadius: 2.5 },
-  progressDot: { width: 18, height: 18, borderRadius: 9, zIndex: 2 },
-  progressDotFilled: { backgroundColor: '#4CAF50', shadowColor: '#4CAF50', shadowOpacity: 0.3, shadowRadius: 4, elevation: 4 },
-  progressDotEmpty: { backgroundColor: '#E2E8F0' },
-  timelineRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16, position: 'relative', marginBottom: 4 },
-  timelineRowActive: { backgroundColor: 'rgba(76,175,80,0.08)' },
-  connector: { position: 'absolute', left: 23.5, top: 22, bottom: -22, width: 3, zIndex: 1 },
-  stepDot: { width: 22, height: 22, borderRadius: 11, marginRight: 16, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
-  stepDotCompleted: { backgroundColor: '#4CAF50' },
-  stepDotActive: { backgroundColor: '#0F5B35' },
-  stepDotPending: { backgroundColor: '#fff', borderWidth: 2, borderColor: '#E2E8F0' },
-  stepContent: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  stepTitle: { fontSize: 15, fontWeight: '500', color: '#1E2022', fontFamily: 'Outfit' },
-  stepTime: { fontSize: 13, color: '#7E8B97', fontFamily: 'Outfit' },
-  partnerCard: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 20, backgroundColor: 'rgba(15,91,53,0.04)', borderWidth: 1, borderColor: 'rgba(15,91,53,0.08)', marginBottom: 20 },
-  partnerAvatar: { width: 50, height: 50, borderRadius: 25, borderWidth: 2, borderColor: '#fff' },
-  partnerName: { fontSize: 15, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 2 },
-  partnerSub: { fontSize: 12, color: '#7E8B97', fontFamily: 'Outfit', fontWeight: '600' },
-  iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: 'rgba(15,91,53,0.1)', alignItems: 'center', justifyContent: 'center' },
-  receiptBtn: { height: 52, borderRadius: 16, backgroundColor: '#0F5B35', alignItems: 'center', justifyContent: 'center' },
-  receiptBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: 'Outfit' },
-  trackingMap: { height: 180, backgroundColor: '#F8FAFC', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0', marginVertical: 14, overflow: 'hidden', position: 'relative' },
-  mapGrid: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.04, borderWidth: 1, borderColor: '#475569' },
-  mapBadge: { position: 'absolute', backgroundColor: 'rgba(15, 23, 42, 0.85)', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 4 },
-  mapBadgeText: { color: '#ffffff', fontSize: 8, fontWeight: '700' },
-  navInstruction: { position: 'absolute', bottom: 8, left: 8, right: 8, backgroundColor: '#FFFFFF', padding: 6, borderRadius: 6, fontSize: 10, fontWeight: '700', color: '#475569', textAlign: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
-  reviewCard: {
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.warmWhite,
+    backgroundColor: theme.colors.background,
+  },
+  headerBtn: {
+    padding: 4,
+  },
+  headerTitle: {
+    fontFamily: Platform.OS === 'web' ? 'Playfair Display' : 'serif',
+    fontSize: 18,
+    fontWeight: '800',
+    color: theme.colors.primaryGreen,
+  },
+  headerSubtitle: {
+    fontSize: 10,
+    color: theme.colors.secondaryText,
+    fontFamily: 'Inter',
+    marginTop: 2,
+  },
+  supportBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderWidth: 1.2,
+    borderColor: theme.colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 20,
-    padding: 16,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.01,
-    shadowRadius: 3,
+  },
+  supportBadgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: theme.colors.primaryText,
+    fontFamily: 'Inter',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+
+  // Info card
+  infoCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#0B4D3A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
     elevation: 1,
   },
-  reviewCardTitle: {
+  restaurantThumb: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+  },
+  infoMiddle: {
+    flex: 1,
+    marginLeft: 14,
+  },
+  restaurantName: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#1E2022',
-    fontFamily: 'Outfit',
+    fontWeight: '800',
+    color: theme.colors.primaryText,
+    fontFamily: Platform.OS === 'web' ? 'Playfair Display' : 'serif',
+  },
+  orderIdText: {
+    fontSize: 11,
+    color: theme.colors.secondaryText,
+    marginTop: 3,
+    fontFamily: 'Inter',
+    fontWeight: '600',
+  },
+  orderItemsText: {
+    fontSize: 11,
+    color: theme.colors.lightText,
+    marginTop: 2,
+    fontFamily: 'Inter',
+  },
+  feeHighlightBadge: {
+    backgroundColor: '#FAF8F5',
+    borderWidth: 1,
+    borderColor: '#EAE6DF',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  feeBadgeTextLabel: {
+    fontSize: 8,
+    color: '#5E5E5E',
+    fontWeight: '600',
     textAlign: 'center',
-    marginBottom: 4,
+    fontFamily: 'Inter',
+  },
+  feeBadgeTextAmount: {
+    fontSize: 14,
+    color: '#C7A96B',
+    fontWeight: '800',
+    textAlign: 'center',
+    fontFamily: 'Inter',
+    marginTop: 1,
+  },
+
+  // Map
+  mapContainer: {
+    height: 200,
+    backgroundColor: '#FAF9F6',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    marginVertical: 20,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  etaFloatingTag: {
+    position: 'absolute',
+    top: 15,
+    right: 25,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    elevation: 3,
+    alignItems: 'center',
+  },
+  etaText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#1C1C1C',
+    fontFamily: 'Inter',
+  },
+  etaSubtext: {
+    fontSize: 9,
+    color: '#5E5E5E',
+    fontWeight: '700',
+    fontFamily: 'Inter',
+  },
+  etaTriangle: {
+    position: 'absolute',
+    bottom: -6,
+    alignSelf: 'center',
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 6,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#FFFFFF',
+  },
+
+  // Timeline Progress status card
+  timelineCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    shadowColor: '#0B4D3A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 1,
+  },
+  timelineRow: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    position: 'relative',
+    alignItems: 'center',
+  },
+  connectorLine: {
+    position: 'absolute',
+    left: 12,
+    top: 30,
+    bottom: -18,
+    width: 1,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderStyle: 'dashed',
+    zIndex: 1,
+  },
+  statusIndicatorCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+  timelineTextContainer: {
+    flex: 1,
+    marginLeft: 16,
+    paddingRight: 8,
+  },
+  stepTitleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.primaryText,
+    fontFamily: 'Inter',
+  },
+  stepDescText: {
+    fontSize: 11,
+    color: theme.colors.secondaryText,
+    marginTop: 3,
+    fontFamily: 'Inter',
+    lineHeight: 14,
+  },
+  deliveryHighlightText: {
+    color: theme.colors.gold,
+    fontSize: 11,
+    fontWeight: '700',
+    marginTop: 4,
+  },
+  stepTimeText: {
+    fontSize: 11,
+    color: theme.colors.lightText,
+    fontWeight: '600',
+    fontFamily: 'Inter',
+  },
+  endCheckmark: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: theme.colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+
+  // Cancel option
+  cancelContainer: {
+    backgroundColor: '#FFF5F5',
+    borderColor: '#FEB2B2',
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 14,
+    marginTop: 18,
+    alignItems: 'center',
+    gap: 8,
+  },
+  cancelText: {
+    fontSize: 12,
+    color: '#C53030',
+    fontWeight: '700',
+  },
+  cancelButton: {
+    backgroundColor: '#E53E3E',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  cancelButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 11,
+  },
+
+  // Thanks banner
+  feedbackBanner: {
+    backgroundColor: '#0B4D3A',
+    borderRadius: 22,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  leafIconBg: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  feedbackTitle: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 13,
+    fontFamily: 'Inter',
+  },
+  feedbackSub: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontSize: 10,
+    fontFamily: 'Inter',
+    marginTop: 2,
+  },
+  viewDetailsBtn: {
+    borderWidth: 1.2,
+    borderColor: theme.colors.gold,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  viewDetailsText: {
+    color: theme.colors.gold,
+    fontWeight: '700',
+    fontSize: 10,
+    fontFamily: 'Inter',
+  },
+
+  // Review partners
+  reviewCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 16,
+    marginTop: 20,
+  },
+  reviewTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: theme.colors.primaryText,
   },
   reviewSub: {
-    fontSize: 13,
-    color: '#7E8B97',
-    fontFamily: 'Outfit',
+    fontSize: 12,
+    color: theme.colors.secondaryText,
     textAlign: 'center',
-    marginBottom: 12,
+    marginTop: 2,
   },
-  starRow: {
+  reviewInput: {
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: '#FAF9F6',
+    borderRadius: 12,
+    height: 60,
+    paddingHorizontal: 12,
+    color: theme.colors.primaryText,
+    fontSize: 13,
+    marginBottom: 10,
+  },
+  reviewBtn: {
+    backgroundColor: theme.colors.primaryGreen,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reviewBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 13,
+  },
+
+  // Footer Indicators
+  hygieneFooter: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  starIcon: {
-    fontFamily: 'Outfit',
-  },
-  reviewInput: {
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderRadius: 12,
-    padding: 12,
-    color: '#1E2022',
-    fontSize: 14,
-    fontFamily: 'Outfit',
-    height: 80,
-    textAlignVertical: 'top',
-    marginBottom: 14,
-  },
-  submitReviewBtn: {
-    backgroundColor: '#0F5B35',
-    height: 44,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  submitReviewBtnText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
-    fontFamily: 'Outfit',
-  },
-  disabledBtn: {
-    backgroundColor: '#CBD5E1',
-  },
-  submittedContainer: {
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  submittedComment: {
-    fontSize: 14,
-    color: '#7E8B97',
-    fontStyle: 'italic',
-    fontFamily: 'Outfit',
-    textAlign: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 24,
+    paddingHorizontal: 10,
     marginBottom: 10,
   },
-  submittedText: {
-    fontSize: 14,
-    color: '#0F5B35',
-    fontWeight: '700',
-    fontFamily: 'Outfit',
-    textAlign: 'center',
-  },
-  cancelBox: {
-    backgroundColor: '#FFF5F5',
-    borderWidth: 1,
-    borderColor: '#FEB2B2',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 20,
-  },
-  cancelInfo: {
-    fontSize: 12,
-    color: '#C53030',
-    fontFamily: 'Outfit',
-    textAlign: 'center',
-    marginBottom: 10,
+  hygieneText: {
+    fontSize: 10,
+    color: theme.colors.secondaryText,
     fontWeight: '600',
+    fontFamily: 'Inter',
   },
-  cancelBtn: {
-    backgroundColor: '#E53E3E',
-    height: 38,
-    borderRadius: 8,
+  hygieneDivider: {
+    fontSize: 10,
+    color: '#D1CFCA',
+  },
+  center: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  cancelBtnText: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
-    fontFamily: 'Outfit',
-  },
-  cannotCancelRow: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cannotCancelText: {
-    fontSize: 13,
-    color: '#C53030',
-    fontFamily: 'Outfit',
-    fontWeight: '700',
-    textAlign: 'center',
   },
 });
-
-

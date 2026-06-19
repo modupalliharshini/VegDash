@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import Svg, { Line, Polyline } from 'react-native-svg';
@@ -20,7 +21,7 @@ export const Notifications: React.FC = () => {
       {/* Header bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
             <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
           </Svg>
         </TouchableOpacity>
@@ -61,14 +62,14 @@ export const Notifications: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   backBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginLeft: 16, flex: 1 },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginLeft: 16, flex: 1 },
   clearBtn: { paddingHorizontal: 12, paddingVertical: 8 },
-  clearText: { fontSize: 13, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
+  clearText: { fontSize: 13, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
-  emptyText: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 8 },
-  emptySub: { fontSize: 13, color: '#7E8B97', fontFamily: 'Outfit', textAlign: 'center', lineHeight: 18 },
+  emptyText: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 8 },
+  emptySub: { fontSize: 13, color: theme.colors.lightText, fontFamily: 'Outfit', textAlign: 'center', lineHeight: 18 },
   listContainer: { padding: 20, gap: 14 },
   itemWrapper: { width: '100%' },
 });

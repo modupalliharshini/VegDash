@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import Svg, { Line, Polyline, Circle, Path, Polygon } from 'react-native-svg';
@@ -114,7 +115,7 @@ export const RestaurantMenu: React.FC = () => {
       <components.SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
               <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
             </Svg>
           </TouchableOpacity>
@@ -122,7 +123,7 @@ export const RestaurantMenu: React.FC = () => {
           <View style={{ width: 40 }} />
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#0F5B35" />
+          <ActivityIndicator size="large" color={theme.colors.primaryGreen} />
         </View>
       </components.SafeAreaView>
     );
@@ -133,7 +134,7 @@ export const RestaurantMenu: React.FC = () => {
       <components.SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
               <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
             </Svg>
           </TouchableOpacity>
@@ -141,7 +142,7 @@ export const RestaurantMenu: React.FC = () => {
           <View style={{ width: 40 }} />
         </View>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-          <Text style={{ fontSize: 16, color: '#7E8B97', textAlign: 'center' }}>Restaurant not found</Text>
+          <Text style={{ fontSize: 16, color: theme.colors.lightText, textAlign: 'center' }}>Restaurant not found</Text>
         </View>
       </components.SafeAreaView>
     );
@@ -152,7 +153,7 @@ export const RestaurantMenu: React.FC = () => {
       {/* Header bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
             <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
           </Svg>
         </TouchableOpacity>
@@ -210,12 +211,12 @@ export const RestaurantMenu: React.FC = () => {
             <View style={styles.menuHeader}>
               <Text style={styles.menuTitle}>Menu ({restaurantDishes.length} items)</Text>
               <View style={styles.searchBar}>
-                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#7E8B97" strokeWidth={2.2}>
+                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={theme.colors.lightText} strokeWidth={2.2}>
                   <Circle cx={11} cy={11} r={8} /><Line x1={21} y1={21} x2={16.65} y2={16.65} />
                 </Svg>
                 <TextInput
                   placeholder="Search in menu..."
-                  placeholderTextColor="#7E8B97"
+                  placeholderTextColor={theme.colors.lightText}
                   style={styles.searchInput}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -264,43 +265,43 @@ export const RestaurantMenu: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   headerBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', maxWidth: '65%' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', maxWidth: '65%' },
   restaurantSection: { padding: 16, alignItems: 'center' },
   coverImage: { width: '100%', height: 160, borderRadius: 20, opacity: 0.85 },
-  detailsCard: { width: '92%', backgroundColor: '#FFFFFF', borderRadius: 20, padding: 18, marginTop: -50, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 4 },
-  brandName: { fontSize: 20, fontWeight: '800', color: '#1E2022', fontFamily: 'Outfit', textAlign: 'center', marginBottom: 4 },
-  cuisineText: { fontSize: 12, color: '#7E8B97', fontFamily: 'Outfit', textAlign: 'center', marginBottom: 12, fontWeight: '600' },
-  metaRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#F3F4F5', borderBottomWidth: 1, borderBottomColor: '#F3F4F5', marginBottom: 12 },
+  detailsCard: { width: '92%', backgroundColor: '#FFFFFF', borderRadius: 20, padding: 18, marginTop: -50, borderWidth: 1, borderColor: theme.colors.border, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 4 },
+  brandName: { fontSize: 20, fontWeight: '800', color: theme.colors.primaryText, fontFamily: 'Outfit', textAlign: 'center', marginBottom: 4 },
+  cuisineText: { fontSize: 12, color: theme.colors.lightText, fontFamily: 'Outfit', textAlign: 'center', marginBottom: 12, fontWeight: '600' },
+  metaRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 8, borderTopWidth: 1, borderTopColor: theme.colors.warmWhite, borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite, marginBottom: 12 },
   metaCol: { alignItems: 'center' },
-  metaVal: { fontSize: 14, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
-  metaLabel: { fontSize: 10, color: '#7E8B97', fontFamily: 'Outfit', marginTop: 2 },
-  verticalDivider: { width: 1, height: 24, backgroundColor: '#E2E8F0' },
+  metaVal: { fontSize: 14, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
+  metaLabel: { fontSize: 10, color: theme.colors.lightText, fontFamily: 'Outfit', marginTop: 2 },
+  verticalDivider: { width: 1, height: 24, backgroundColor: theme.colors.border },
   couponRow: { backgroundColor: 'rgba(15,91,53,0.06)', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, alignItems: 'center' },
-  couponText: { fontSize: 12, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
+  couponText: { fontSize: 12, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
   menuHeader: { paddingHorizontal: 20, marginTop: 10, marginBottom: 12 },
-  menuTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 10 },
-  searchBar: { backgroundColor: '#F4F6F8', borderRadius: 12, flexDirection: 'row', alignItems: 'center', height: 40, paddingHorizontal: 12, borderWidth: 1, borderColor: '#E2E8F0', gap: 8 },
-  searchInput: { flex: 1, fontSize: 13, color: '#1E2022', fontFamily: 'Outfit', paddingVertical: 0 },
+  menuTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 10 },
+  searchBar: { backgroundColor: theme.colors.warmWhite, borderRadius: 12, flexDirection: 'row', alignItems: 'center', height: 40, paddingHorizontal: 12, borderWidth: 1, borderColor: theme.colors.border, gap: 8 },
+  searchInput: { flex: 1, fontSize: 13, color: theme.colors.primaryText, fontFamily: 'Outfit', paddingVertical: 0 },
   categoriesContainer: { paddingHorizontal: 20, gap: 8, alignItems: 'center' },
-  categoryBtn: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' },
-  categoryBtnActive: { borderColor: '#0F5B35', backgroundColor: '#0F5B35' },
-  categoryText: { fontSize: 12, fontWeight: '600', color: '#1E2022', fontFamily: 'Outfit' },
+  categoryBtn: { paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: '#FFFFFF' },
+  categoryBtnActive: { borderColor: theme.colors.primaryGreen, backgroundColor: theme.colors.primaryGreen },
+  categoryText: { fontSize: 12, fontWeight: '600', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   categoryTextActive: { color: '#FFFFFF' },
-  dishCard: { flexDirection: 'row', padding: 16, marginHorizontal: 20, marginBottom: 16, backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: '#E2E8F0', gap: 14 },
+  dishCard: { flexDirection: 'row', padding: 16, marginHorizontal: 20, marginBottom: 16, backgroundColor: '#FFFFFF', borderRadius: 18, borderWidth: 1, borderColor: theme.colors.border, gap: 14 },
   dishInfo: { flex: 1 },
   vegBadge: { width: 16, height: 16, borderWidth: 1.5, borderColor: '#4CAF50', backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderRadius: 3 },
   vegDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#4CAF50' },
   popularBadge: { backgroundColor: '#FFECEC', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   popularBadgeText: { fontSize: 9, fontWeight: '700', color: '#FF2121', fontFamily: 'Outfit' },
-  dishName: { fontSize: 16, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 2 },
-  dishPrice: { fontSize: 15, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit', marginBottom: 6 },
-  dishDesc: { fontSize: 12, color: '#7E8B97', fontFamily: 'Outfit', lineHeight: 16 },
+  dishName: { fontSize: 16, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 2 },
+  dishPrice: { fontSize: 15, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit', marginBottom: 6 },
+  dishDesc: { fontSize: 12, color: theme.colors.lightText, fontFamily: 'Outfit', lineHeight: 16 },
   dishImageContainer: { width: 100, height: 100, position: 'relative' },
   dishImage: { width: '100%', height: '100%', borderRadius: 14 },
   addBtnWrapper: { position: 'absolute', bottom: -10, left: 10, right: 10, minHeight: 32 },
   emptyContainer: { alignItems: 'center', justifyContent: 'center', padding: 40 },
-  emptyText: { fontSize: 15, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 4 },
-  emptySub: { fontSize: 12, color: '#7E8B97', fontFamily: 'Outfit' },
+  emptyText: { fontSize: 15, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 4 },
+  emptySub: { fontSize: 12, color: theme.colors.lightText, fontFamily: 'Outfit' },
 });

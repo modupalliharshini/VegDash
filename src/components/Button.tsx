@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, ViewStyle } from 'react-native';
-import { constants } from '@/constants';
+import { theme } from '@/theme/theme';
 
 type Props = {
   label: string;
@@ -21,12 +21,14 @@ export const Button: React.FC<Props> = ({
       activeOpacity={0.8}
       style={[
         {
-          backgroundColor: colorScheme === 'primary' ? constants.colors.SEA_GREEN_COLOR : '#E8F9F1',
+          backgroundColor: colorScheme === 'primary' ? theme.colors.primaryGreen : theme.colors.card,
           width: '100%',
-          borderRadius: 10,
+          borderRadius: theme.borderRadius,
           height: 50,
           alignItems: 'center',
           justifyContent: 'center',
+          // Apply consistent shadow for web
+          ...theme.shadows.boxShadow('#000'),
         },
         containerStyle,
       ]}
@@ -34,10 +36,10 @@ export const Button: React.FC<Props> = ({
       <Text
         style={{
           fontWeight: '700',
-          color: colorScheme === 'primary' ? '#fff' : constants.colors.SEA_GREEN_COLOR,
+          color: colorScheme === 'primary' ? theme.colors.pureWhite : theme.colors.primaryGreen,
           fontSize: 16,
           textTransform: 'capitalize',
-          fontFamily: 'Outfit',
+          fontFamily: theme.fonts.body,
         }}
       >
         {label}

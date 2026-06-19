@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React from 'react';
 import { View, TextInput, ViewStyle } from 'react-native';
 import { constants } from '@/constants';
@@ -29,7 +30,7 @@ export const Input: React.FC<Props> = ({
           height: 52,
           paddingHorizontal: 20,
           borderWidth: 1.5,
-          borderColor: '#EEEEEE',
+          borderColor: theme.colors.border,
           flexDirection: 'row',
           alignItems: 'center',
         },
@@ -41,7 +42,7 @@ export const Input: React.FC<Props> = ({
         placeholder={placeholder}
         value={value || ''}
         onChangeText={onChangeText}
-        placeholderTextColor="#7E8B97"
+        placeholderTextColor={theme.colors.lightText}
         style={{
           flex: 1,
           fontSize: 14,

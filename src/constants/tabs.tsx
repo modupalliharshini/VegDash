@@ -18,19 +18,16 @@ const SearchIcon: React.FC<{ color: string }> = ({ color }) => (
 
 const OrdersIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-    <Path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-    <Rect x={8} y={2} width={8} height={4} rx={1} />
-    <Line x1={9} y1={9} x2={15} y2={9} />
-    <Line x1={9} y1={13} x2={15} y2={13} />
-    <Line x1={9} y1={17} x2={15} y2={17} />
+    <Path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z" />
+    <Line x1={3} y1={6} x2={21} y2={6} />
+    <Path d="M16 10a4 4 0 0 1-8 0" />
   </Svg>
 );
 
-const OffersIcon: React.FC<{ color: string }> = ({ color }) => (
+const PrivilegesIcon: React.FC<{ color: string }> = ({ color }) => (
   <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-    <Line x1={19} y1={5} x2={5} y2={19} />
-    <Circle cx={6.5} cy={6.5} r={2.5} />
-    <Circle cx={17.5} cy={17.5} r={2.5} />
+    <Path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" />
+    <Path d="M3 20h18" stroke={color} strokeWidth={2.5} />
   </Svg>
 );
 
@@ -45,6 +42,6 @@ export const tabs = [
   { id: 1, route: routes.HOME, icon: HomeTabIcon, name: 'Home' },
   { id: 2, route: routes.SHOP, icon: SearchIcon, name: 'Search' },
   { id: 3, route: routes.ORDER_HISTORY, icon: OrdersIcon, name: 'Orders' },
-  { id: 4, route: routes.MY_PROMOCODES, icon: OffersIcon, name: 'Offers' },
+  { id: 4, route: routes.MY_PROMOCODES, icon: PrivilegesIcon, name: 'Privileges' },
   { id: 5, route: routes.PROFILE, icon: UserTabIcon, name: 'Profile' },
 ];

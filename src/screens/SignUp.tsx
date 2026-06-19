@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { hooks } from '@/hooks';
@@ -160,14 +161,14 @@ export const SignUp: React.FC = () => {
 
 const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1, padding: 20, paddingTop: 30, paddingBottom: 120 },
-  title: { textAlign: 'center', fontSize: 22, fontWeight: '700', color: '#0F5B35', marginBottom: 8, fontFamily: 'Outfit' },
-  subtitle: { textAlign: 'center', fontSize: 16, marginBottom: 28, color: '#7E8B97', fontFamily: 'Outfit' },
+  title: { textAlign: 'center', fontSize: 22, fontWeight: '700', color: theme.colors.primaryGreen, marginBottom: 8, fontFamily: 'Outfit' },
+  subtitle: { textAlign: 'center', fontSize: 16, marginBottom: 28, color: theme.colors.lightText, fontFamily: 'Outfit' },
   inputMargin: { marginBottom: 15 },
   checkRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  termsText: { marginLeft: 8, color: '#7E8B97', fontFamily: 'Outfit', fontSize: 14 },
+  termsText: { marginLeft: 8, color: theme.colors.lightText, fontFamily: 'Outfit', fontSize: 14 },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
-  footerText: { color: '#1E2022', fontFamily: 'Outfit' },
-  signinLink: { color: '#0F5B35', fontWeight: '500', fontFamily: 'Outfit' },
+  footerText: { color: theme.colors.primaryText, fontFamily: 'Outfit' },
+  signinLink: { color: theme.colors.primaryGreen, fontWeight: '500', fontFamily: 'Outfit' },
   requirementsContainer: {
     backgroundColor: '#F4F9F6',
     borderWidth: 1,
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
   requirementsTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#0F5B35',
+    color: theme.colors.primaryGreen,
     marginBottom: 6,
     fontFamily: 'Outfit',
   },
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   unmetText: {
-    color: '#7E8B97',
+    color: theme.colors.lightText,
   },
   errorText: {
     color: '#FF3B30',

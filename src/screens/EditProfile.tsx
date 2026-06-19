@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -61,7 +62,7 @@ export const EditProfile: React.FC = () => {
       {/* Header bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
             <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
           </Svg>
         </TouchableOpacity>
@@ -133,17 +134,17 @@ export const EditProfile: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   backBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   scrollContent: { padding: 20, paddingBottom: 40 },
   avatarSection: { alignItems: 'center', marginVertical: 20 },
-  avatar: { width: 90, height: 90, borderRadius: 45, marginBottom: 10, borderWidth: 2, borderColor: '#0F5B35' },
+  avatar: { width: 90, height: 90, borderRadius: 45, marginBottom: 10, borderWidth: 2, borderColor: theme.colors.primaryGreen },
   changePicBtn: { padding: 4 },
-  changePicText: { fontSize: 13, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
+  changePicText: { fontSize: 13, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
   formSection: { gap: 18, marginBottom: 30 },
   inputGroup: { flexDirection: 'column', gap: 6 },
-  inputLabel: { fontSize: 13, fontWeight: '700', color: '#7E8B97', fontFamily: 'Outfit' },
-  saveBtn: { backgroundColor: '#0F5B35', borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center' },
+  inputLabel: { fontSize: 13, fontWeight: '700', color: theme.colors.lightText, fontFamily: 'Outfit' },
+  saveBtn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center' },
   saveBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: 'Outfit' },
 });

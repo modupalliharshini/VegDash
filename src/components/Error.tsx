@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
@@ -13,5 +14,5 @@ export const Error: React.FC<Props> = ({ message }) => (
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   emoji: { fontSize: 40, marginBottom: 16 },
-  text: { fontSize: 16, color: '#7E8B97', textAlign: 'center', fontFamily: 'Outfit' },
+  text: { fontSize: 16, color: theme.colors.lightText, textAlign: 'center', fontFamily: 'Outfit' },
 });

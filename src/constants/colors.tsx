@@ -1,25 +1,36 @@
-const RED_COLOR = '#FE2121';
-const TEXT_COLOR = '#7E8B97';
-const WHITE_COLOR = '#FFFFFF';
-const ORANGE_COLOR = '#FF9800';
-const MAIN_DARK_COLOR = '#1E2022';
-const SEA_GREEN_COLOR = '#0F5B35'; // Veg Dash forest green
-const LIGHT_GRAY_COLOR = '#F4F6F8';
+import { theme } from '@/theme/theme';
+
+const C = theme.colors;
 
 export const colors = {
-  RED_COLOR,
-  TEXT_COLOR,
-  WHITE_COLOR,
-  ORANGE_COLOR,
-  SEA_GREEN_COLOR,
-  MAIN_DARK_COLOR,
-  LIGHT_GRAY_COLOR,
-  // Veg Dash custom palette
-  FOREST_GREEN: '#0F5B35',
-  LIGHT_GREEN: '#4CAF50',
-  BRAND_LEAF_GREEN: '#8BC34A',
-  DARK_TEXT: '#1E2022',
-  MUTED_TEXT: '#7E8B97',
-  SOFT_BG: '#F4F6F8',
-  YELLOW_BANNER: '#FFF9C4',
+  RED_COLOR:        '#D32F2F',
+  TEXT_COLOR:       C.lightText,
+  WHITE_COLOR:      C.pureWhite,
+  ORANGE_COLOR:     '#E65100',
+  SEA_GREEN_COLOR:  C.primaryGreen,
+  MAIN_DARK_COLOR:  C.primaryText,
+  LIGHT_GRAY_COLOR: C.warmWhite,
+
+  // VegDash Premium Palette
+  FOREST_GREEN:   C.primaryGreen,
+  DARK_EMERALD:   C.darkGreen,
+  SAGE_GREEN:     C.sageGreen,
+  CHAMPAGNE_GOLD: C.gold,
+  SOFT_GOLD:      C.softGold,
+  IVORY_BG:       C.background,
+  WARM_WHITE:     C.warmWhite,
+  PURE_WHITE:     C.pureWhite,
+  PRIMARY_TEXT:   C.primaryText,
+  SECONDARY_TEXT: C.secondaryText,
+  LIGHT_TEXT:     C.lightText,
+  VEG_GREEN:      C.success,
+  SOFT_SUCCESS:   C.softSuccessBg,
+  DARK_TEXT:      C.primaryText,
+  MUTED_TEXT:     C.lightText,
+  SOFT_BG:        C.warmWhite,
+
+  // Legacy aliases (kept for backward compat)
+  LIGHT_GREEN:      C.sageGreen,
+  BRAND_LEAF_GREEN: C.primaryGreen,
+  YELLOW_BANNER:    '#FFF3CD',
 };

@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import Svg, { Line, Polyline, Path, Circle } from 'react-native-svg';
@@ -10,7 +11,7 @@ import { foodService } from '@/services/foodService';
 
 // Heart icon
 const HeartIcon: React.FC<{ active: boolean }> = ({ active }) => (
-  <Svg width={22} height={22} viewBox="0 0 24 24" fill={active ? '#FF2121' : 'none'} stroke={active ? '#FF2121' : '#1E2022'} strokeWidth={2}>
+  <Svg width={22} height={22} viewBox="0 0 24 24" fill={active ? '#FF2121' : 'none'} stroke={active ? '#FF2121' : theme.colors.primaryText} strokeWidth={2}>
     <Path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
   </Svg>
 );
@@ -98,7 +99,7 @@ export const Dish: React.FC = () => {
       {/* Header bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
             <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
           </Svg>
         </TouchableOpacity>
@@ -223,12 +224,12 @@ export const Dish: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   headerBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', maxWidth: '60%' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', maxWidth: '60%' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   scrollContent: { paddingBottom: 40 },
-  imageContainer: { width: '100%', height: 260, position: 'relative', backgroundColor: '#F4F6F8' },
+  imageContainer: { width: '100%', height: 260, position: 'relative', backgroundColor: theme.colors.warmWhite },
   dishImage: { width: '100%', height: '100%' },
   badgeRow: { position: 'absolute', bottom: 16, left: 16, right: 16, flexDirection: 'row', gap: 10, alignItems: 'center' },
   vegBadge: { width: 24, height: 24, borderWidth: 2, borderColor: '#4CAF50', backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', borderRadius: 4 },
@@ -238,32 +239,32 @@ const styles = StyleSheet.create({
   badgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600', fontFamily: 'Outfit' },
   nameSection: { padding: 20, backgroundColor: '#FFFFFF' },
   titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  dishName: { fontSize: 22, fontWeight: '800', color: '#1E2022', fontFamily: 'Outfit', flex: 1, textTransform: 'capitalize' },
-  dishPrice: { fontSize: 22, fontWeight: '900', color: '#0F5B35', fontFamily: 'Outfit', marginLeft: 10 },
+  dishName: { fontSize: 22, fontWeight: '800', color: theme.colors.primaryText, fontFamily: 'Outfit', flex: 1, textTransform: 'capitalize' },
+  dishPrice: { fontSize: 22, fontWeight: '900', color: theme.colors.primaryGreen, fontFamily: 'Outfit', marginLeft: 10 },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  ratingText: { fontSize: 13, color: '#7E8B97', fontFamily: 'Outfit', fontWeight: '500' },
-  categoryTag: { marginLeft: 'auto', backgroundColor: '#E8F9F1', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, fontSize: 11, color: '#0F5B35', fontWeight: '700', textTransform: 'uppercase' },
-  divider: { height: 1, backgroundColor: '#F3F4F5', marginHorizontal: 20 },
+  ratingText: { fontSize: 13, color: theme.colors.lightText, fontFamily: 'Outfit', fontWeight: '500' },
+  categoryTag: { marginLeft: 'auto', backgroundColor: theme.colors.softSuccessBg, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, fontSize: 11, color: theme.colors.primaryGreen, fontWeight: '700', textTransform: 'uppercase' },
+  divider: { height: 1, backgroundColor: theme.colors.warmWhite, marginHorizontal: 20 },
   descSection: { padding: 20 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 8 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 8 },
   descText: { fontSize: 14, color: '#666', lineHeight: 20, fontFamily: 'Outfit' },
   ingredientsSection: { padding: 20 },
-  ingredientsSub: { fontSize: 13, color: '#7E8B97', fontFamily: 'Outfit', marginBottom: 12 },
+  ingredientsSub: { fontSize: 13, color: theme.colors.lightText, fontFamily: 'Outfit', marginBottom: 12 },
   ingredientsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  ingredientItem: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' },
-  ingredientItemChecked: { borderColor: '#0F5B35', backgroundColor: '#E8F9F1' },
-  ingredientLabel: { fontSize: 13, color: '#1E2022', fontFamily: 'Outfit', textTransform: 'capitalize' },
-  ingredientLabelChecked: { color: '#0F5B35', fontWeight: '600' },
-  bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#F3F4F5', backgroundColor: '#FFFFFF' },
+  ingredientItem: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 10, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: '#FFFFFF' },
+  ingredientItemChecked: { borderColor: theme.colors.primaryGreen, backgroundColor: theme.colors.softSuccessBg },
+  ingredientLabel: { fontSize: 13, color: theme.colors.primaryText, fontFamily: 'Outfit', textTransform: 'capitalize' },
+  ingredientLabelChecked: { color: theme.colors.primaryGreen, fontWeight: '600' },
+  bottomBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14, borderTopWidth: 1, borderTopColor: theme.colors.warmWhite, backgroundColor: '#FFFFFF' },
   bottomPriceCol: { flexDirection: 'column' },
-  totalPriceLabel: { fontSize: 12, color: '#7E8B97', fontFamily: 'Outfit' },
-  totalPriceVal: { fontSize: 20, fontWeight: '900', color: '#0F5B35', fontFamily: 'Outfit' },
-  addCartBtn: { backgroundColor: '#0F5B35', borderRadius: 16, paddingHorizontal: 36, paddingVertical: 14, height: 50, alignItems: 'center', justifyContent: 'center' },
+  totalPriceLabel: { fontSize: 12, color: theme.colors.lightText, fontFamily: 'Outfit' },
+  totalPriceVal: { fontSize: 20, fontWeight: '900', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
+  addCartBtn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 16, paddingHorizontal: 36, paddingVertical: 14, height: 50, alignItems: 'center', justifyContent: 'center' },
   addCartBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
-  qtyContainer: { flexDirection: 'row', alignItems: 'center', width: 100, height: 48, borderRadius: 16, borderWidth: 2, borderColor: '#0F5B35', justifyContent: 'space-between', paddingHorizontal: 10 },
+  qtyContainer: { flexDirection: 'row', alignItems: 'center', width: 100, height: 48, borderRadius: 16, borderWidth: 2, borderColor: theme.colors.primaryGreen, justifyContent: 'space-between', paddingHorizontal: 10 },
   qtyBtn: { padding: 4 },
-  qtyBtnText: { fontSize: 20, fontWeight: 'bold', color: '#0F5B35' },
-  qtyText: { fontSize: 16, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
-  goCartBtn: { backgroundColor: '#0F5B35', borderRadius: 16, paddingHorizontal: 20, height: 48, alignItems: 'center', justifyContent: 'center' },
+  qtyBtnText: { fontSize: 20, fontWeight: 'bold', color: theme.colors.primaryGreen },
+  qtyText: { fontSize: 16, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
+  goCartBtn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 16, paddingHorizontal: 20, height: 48, alignItems: 'center', justifyContent: 'center' },
   goCartBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700', fontFamily: 'Outfit' },
 });

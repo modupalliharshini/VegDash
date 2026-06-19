@@ -1,32 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { theme } from '@/theme/theme';
 
-import {constants} from '@/constants';
-
-type Props = {
-  notification: any; // Replace 'any' with the actual type of your notification
-};
-
-export const NotificationItem: React.FC<Props> = ({notification}) => {
-  const Icon = notification.icon;
+export const NotificationItem: React.FC<{ notification: any }> = ({ notification }) => {
   return (
     <View style={styles.container}>
-      <View style={[styles.iconContainer, { backgroundColor: notification.iconBg }]}>
-        <Icon width={24} color={notification.iconColor} />
+      <View style={[styles.iconContainer, { backgroundColor: 'rgba(11, 77, 58, 0.1)' }]}>
+        <Text style={{ fontSize: 16 }}>🔔</Text>
       </View>
       <View style={styles.textContainer}>
-        <Text
-          style={styles.title}
-          numberOfLines={1}
-        >
-          {notification.title}
-        </Text>
-        <Text
-          numberOfLines={1}
-          style={styles.message}
-        >
-          {notification.message}
-        </Text>
+        <Text style={styles.title}>{notification.title}</Text>
+        <Text style={styles.message}>{notification.message || notification.description}</Text>
       </View>
     </View>
   );
@@ -35,17 +19,18 @@ export const NotificationItem: React.FC<Props> = ({notification}) => {
 const styles = StyleSheet.create({
   container: {
     borderWidth: 1,
-    borderColor: '#ECECEC',
+    borderColor: theme.colors.border,
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
+    backgroundColor: '#FFFFFF',
   },
   iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -54,14 +39,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 16,
-    color: '#1E2022',
+    fontSize: 14,
+    color: theme.colors.primaryText,
     fontWeight: 'bold',
     marginBottom: 3,
-    fontFamily: 'Outfit',
+    fontFamily: 'Inter',
   },
   message: {
-    fontSize: 14,
-    color: constants.colors.TEXT_COLOR,
+    fontSize: 12,
+    color: theme.colors.secondaryText,
+    fontFamily: 'Inter',
+    lineHeight: 16,
   },
 });

@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Line, Polyline } from 'react-native-svg';
@@ -82,7 +83,7 @@ export const ConfirmationCode: React.FC = () => {
     <components.SafeAreaView style={{ flex: 1 }}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
             <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
           </Svg>
         </TouchableOpacity>
@@ -120,14 +121,14 @@ export const ConfirmationCode: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   backBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   content: { flex: 1, padding: 24, justifyContent: 'center' },
-  title: { fontSize: 24, fontWeight: '800', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 10, textAlign: 'center' },
-  subtitle: { fontSize: 14, color: '#7E8B97', fontFamily: 'Outfit', lineHeight: 22, marginBottom: 30, textAlign: 'center' },
-  btn: { backgroundColor: '#0F5B35', borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
+  title: { fontSize: 24, fontWeight: '800', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 10, textAlign: 'center' },
+  subtitle: { fontSize: 14, color: theme.colors.lightText, fontFamily: 'Outfit', lineHeight: 22, marginBottom: 30, textAlign: 'center' },
+  btn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   btnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
-  secondaryBtn: { height: 52, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#0F5B35', borderRadius: 16, marginTop: 12 },
-  secondaryBtnText: { color: '#0F5B35', fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
+  secondaryBtn: { height: 52, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: theme.colors.primaryGreen, borderRadius: 16, marginTop: 12 },
+  secondaryBtnText: { color: theme.colors.primaryGreen, fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
 });

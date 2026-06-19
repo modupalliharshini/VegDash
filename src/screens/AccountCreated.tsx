@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -42,8 +43,8 @@ export const AccountCreated: React.FC = () => {
 const styles = StyleSheet.create({
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30, backgroundColor: '#FFFFFF' },
   successRing: { width: 110, height: 110, borderRadius: 55, backgroundColor: 'rgba(76,175,80,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
-  title: { fontSize: 22, fontWeight: '800', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 12, textAlign: 'center' },
-  subtitle: { fontSize: 14, color: '#7E8B97', fontFamily: 'Outfit', textAlign: 'center', lineHeight: 22, marginBottom: 35, paddingHorizontal: 10 },
-  btn: { backgroundColor: '#0F5B35', borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', width: '100%' },
+  title: { fontSize: 22, fontWeight: '800', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 12, textAlign: 'center' },
+  subtitle: { fontSize: 14, color: theme.colors.lightText, fontFamily: 'Outfit', textAlign: 'center', lineHeight: 22, marginBottom: 35, paddingHorizontal: 10 },
+  btn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', width: '100%' },
   btnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
 });

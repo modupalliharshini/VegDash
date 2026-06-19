@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState, useMemo } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, LayoutAnimation, Platform, UIManager } from 'react-native';
 import Svg, { Line, Polyline, Circle } from 'react-native-svg';
@@ -20,7 +21,7 @@ const AccordionItem: React.FC<{ item: FAQItemType; isOpen: boolean; onPress: () 
       <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.cardHeader}>
         <Text style={styles.questionText}>{item.question}</Text>
         <View style={[styles.arrowContainer, isOpen && styles.arrowContainerActive]}>
-          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#7E8B97" strokeWidth={3}>
+          <Svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={theme.colors.lightText} strokeWidth={3}>
             <Polyline points="6 9 12 15 18 9" />
           </Svg>
         </View>
@@ -58,7 +59,7 @@ export const FAQ: React.FC = () => {
       {/* Header bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
             <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
           </Svg>
         </TouchableOpacity>
@@ -69,19 +70,19 @@ export const FAQ: React.FC = () => {
       {/* Search Input */}
       <View style={styles.searchSection}>
         <View style={styles.searchBar}>
-          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#7E8B97" strokeWidth={2.2}>
+          <Svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={theme.colors.lightText} strokeWidth={2.2}>
             <Circle cx={11} cy={11} r={8} /><Line x1={21} y1={21} x2={16.65} y2={16.65} />
           </Svg>
           <TextInput
             placeholder="Search FAQs..."
-            placeholderTextColor="#7E8B97"
+            placeholderTextColor={theme.colors.lightText}
             style={styles.searchInput}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Text style={{ fontSize: 16, color: '#7E8B97', fontWeight: 'bold' }}>✕</Text>
+              <Text style={{ fontSize: 16, color: theme.colors.lightText, fontWeight: 'bold' }}>✕</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -116,22 +117,22 @@ export const FAQ: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   backBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   searchSection: { paddingHorizontal: 20, marginVertical: 12 },
-  searchBar: { backgroundColor: '#F4F6F8', borderRadius: 16, flexDirection: 'row', alignItems: 'center', height: 48, paddingHorizontal: 16, borderWidth: 1, borderColor: '#E2E8F0', gap: 10 },
-  searchInput: { flex: 1, fontSize: 14, color: '#1E2022', fontFamily: 'Outfit', paddingVertical: 0 },
+  searchBar: { backgroundColor: theme.colors.warmWhite, borderRadius: 16, flexDirection: 'row', alignItems: 'center', height: 48, paddingHorizontal: 16, borderWidth: 1, borderColor: theme.colors.border, gap: 10 },
+  searchInput: { flex: 1, fontSize: 14, color: theme.colors.primaryText, fontFamily: 'Outfit', paddingVertical: 0 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
-  emptyText: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 8 },
-  emptySub: { fontSize: 13, color: '#7E8B97', fontFamily: 'Outfit', textAlign: 'center', lineHeight: 18 },
+  emptyText: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 8 },
+  emptySub: { fontSize: 13, color: theme.colors.lightText, fontFamily: 'Outfit', textAlign: 'center', lineHeight: 18 },
   listContainer: { paddingHorizontal: 20, paddingBottom: 20, gap: 12 },
-  card: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden' },
-  cardActive: { borderColor: '#0F5B35' },
+  card: { backgroundColor: '#FFFFFF', borderRadius: 16, borderWidth: 1, borderColor: theme.colors.border, overflow: 'hidden' },
+  cardActive: { borderColor: theme.colors.primaryGreen },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, gap: 12 },
-  questionText: { fontSize: 14, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', flex: 1 },
+  questionText: { fontSize: 14, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', flex: 1 },
   arrowContainer: { transform: [{ rotate: '0deg' }] },
   arrowContainerActive: { transform: [{ rotate: '180deg' }] },
-  cardBody: { paddingHorizontal: 16, paddingBottom: 16, borderTopWidth: 1, borderTopColor: '#F3F4F5', paddingTop: 12 },
+  cardBody: { paddingHorizontal: 16, paddingBottom: 16, borderTopWidth: 1, borderTopColor: theme.colors.warmWhite, paddingTop: 12 },
   answerText: { fontSize: 13, color: '#666', lineHeight: 18, fontFamily: 'Outfit' },
 });

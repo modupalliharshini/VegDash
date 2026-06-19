@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { hooks } from '../hooks';
 import { constants } from '@/constants';
 import { stores } from '@/stores';
+import { theme } from '@/theme/theme';
 
 export const BottomTabBar: React.FC = () => {
   const { location, navigate, params } = hooks.useRouter();
@@ -22,78 +23,128 @@ export const BottomTabBar: React.FC = () => {
     activeRoute = routerParams?.from || routerParams?.state?.from || constants.routes.HOME;
   }
 
+  const isHomeRoute = activeRoute === constants.routes.HOME;
+
   return (
-    <View style={{ paddingHorizontal: 10, paddingBottom: Math.max(insets.bottom, 6) }}>
+    <View style={isHomeRoute ? { paddingHorizontal: 10, paddingBottom: Math.max(insets.bottom, 6) } : { width: '100%' }}>
       {cart.length > 0 && !isCartPage && !isDetailPage && (
-        <TouchableOpacity
-          onPress={() => navigate(constants.routes.ORDER)}
-          style={{
-            backgroundColor: '#0F5B35',
-            borderRadius: 16,
-            height: 52,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingHorizontal: 18,
-            marginBottom: 10,
-            elevation: 8,
-            shadowColor: '#0F5B35',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.2,
-            shadowRadius: 6,
-          }}
-          activeOpacity={0.9}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
-              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13, fontFamily: 'Outfit' }}>
-                🛒 {totalItems} {totalItems === 1 ? 'Item' : 'Items'}
+        <View style={{ paddingHorizontal: 10, marginBottom: 10 }}>
+          <TouchableOpacity
+            onPress={() => navigate(constants.routes.ORDER)}
+            style={{
+              backgroundColor: theme.colors.darkGreen,
+              borderRadius: 16,
+              height: 52,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingHorizontal: 18,
+              elevation: 8,
+              ...theme.shadows.boxShadow(theme.colors.darkGreen),
+            }}
+            activeOpacity={0.9}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
+                <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 13, fontFamily: 'Outfit' }}>
+                  🛒 {totalItems} {totalItems === 1 ? 'Item' : 'Items'}
+                </Text>
+              </View>
+              <View style={{ width: 1.5, height: 16, backgroundColor: 'rgba(255,255,255,0.3)' }} />
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 15, fontFamily: 'Outfit' }}>
+                ₹{totalPrice}
               </Text>
             </View>
-            <View style={{ width: 1.5, height: 16, backgroundColor: 'rgba(255,255,255,0.3)' }} />
-            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 15, fontFamily: 'Outfit' }}>
-              ₹{totalPrice}
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 14, fontFamily: 'Outfit' }}>
-              View Cart
-            </Text>
-            <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>➔</Text>
-          </View>
-        </TouchableOpacity>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 14, fontFamily: 'Outfit' }}>
+                View Cart
+              </Text>
+              <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 16 }}>➔</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       )}
 
       <View
-        style={{
-          backgroundColor: '#0F5B35',
+        style={isHomeRoute ? {
+          backgroundColor: '#0A3B2E',
           borderRadius: 25,
           height: 60,
           flexDirection: 'row',
           justifyContent: 'space-around',
           alignItems: 'center',
-          shadowColor: '#0F5B35',
-          shadowOpacity: 0.25,
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 4 },
           elevation: 8,
+          ...theme.shadows.boxShadow('#0A3B2E'),
+        } : {
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 1,
+          borderTopColor: '#E2E8F0',
+          height: 58 + Math.max(insets.bottom, 4),
+          paddingBottom: Math.max(insets.bottom, 4),
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          width: '100%',
         }}
       >
         {constants.tabs.map((tab) => {
           const isActive = activeRoute === tab.route;
-          const color = isActive ? '#FFFFFF' : '#A6CBB7';
+          
+          let color = 'rgba(255, 255, 255, 0.6)';
+          if (isActive) {
+            color = isHomeRoute ? theme.colors.sageGreen : '#0B4D3A';
+          } else {
+            color = isHomeRoute ? 'rgba(255, 255, 255, 0.6)' : '#64748B';
+          }
+
           const Icon = tab.icon;
           const displayName = tab.id === 5 && !isLoggedIn ? 'Login' : tab.name;
+          
           return (
             <TouchableOpacity
               key={tab.id}
               onPress={() => navigate(tab.route)}
-              style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 5 }}
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+              }}
             >
-              <Icon color={color} />
-              <Text style={{ fontSize: 9, color, marginTop: 3, fontWeight: isActive ? '600' : '400', letterSpacing: 0.2 }}>
-                {displayName}
-              </Text>
+              <View style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <View style={{ width: 22, height: 22, alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon color={color} />
+                </View>
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color,
+                    marginTop: 3,
+                    fontWeight: isActive ? '700' : '500',
+                    fontFamily: 'Inter',
+                    letterSpacing: 0.1,
+                    flexShrink: 0,
+                  }}
+                >
+                  {displayName}
+                </Text>
+                {isActive && !isHomeRoute && (
+                  <View 
+                    style={{
+                      height: 2.5,
+                      width: 18,
+                      backgroundColor: '#0B4D3A',
+                      borderRadius: 1.5,
+                      marginTop: 3.5,
+                      position: 'absolute',
+                      bottom: -8,
+                    }}
+                  />
+                )}
+              </View>
             </TouchableOpacity>
           );
         })}

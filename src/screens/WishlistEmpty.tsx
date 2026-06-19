@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { hooks } from '@/hooks';
@@ -11,7 +12,7 @@ export const WishlistEmpty: React.FC = () => {
     <components.SafeAreaView>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
-          <Text style={{ fontSize: 18, color: '#1E2022' }}>🗙</Text>
+          <Text style={{ fontSize: 18, color: theme.colors.primaryText }}>🗙</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>My Wishlist</Text>
         <View style={{ width: 40 }} />
@@ -37,13 +38,13 @@ export const WishlistEmpty: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   backBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
   emptyIcon: { fontSize: 60, marginBottom: 20 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1E2022', marginBottom: 8, fontFamily: 'Outfit' },
-  emptySubtitle: { fontSize: 14, color: '#7E8B97', marginBottom: 24, textAlign: 'center', fontFamily: 'Outfit', lineHeight: 20 },
-  btn: { backgroundColor: '#0F5B35', borderRadius: 16, paddingHorizontal: 28, paddingVertical: 14 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: theme.colors.primaryText, marginBottom: 8, fontFamily: 'Outfit' },
+  emptySubtitle: { fontSize: 14, color: theme.colors.lightText, marginBottom: 24, textAlign: 'center', fontFamily: 'Outfit', lineHeight: 20 },
+  btn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 16, paddingHorizontal: 28, paddingVertical: 14 },
   btnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600', fontFamily: 'Outfit' },
 });

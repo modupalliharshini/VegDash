@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -32,7 +33,7 @@ export const OrderSuccessful: React.FC = () => {
     return (
       <components.SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color="#0F5B35" />
+          <ActivityIndicator size="large" color={theme.colors.primaryGreen} />
         </View>
       </components.SafeAreaView>
     );
@@ -97,15 +98,15 @@ export const OrderSuccessful: React.FC = () => {
 const styles = StyleSheet.create({
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 30, backgroundColor: '#FFFFFF' },
   successRing: { width: 110, height: 110, borderRadius: 55, backgroundColor: 'rgba(76,175,80,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
-  title: { fontSize: 22, fontWeight: '800', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 12, textAlign: 'center' },
-  subtitle: { fontSize: 14, color: '#7E8B97', fontFamily: 'Outfit', textAlign: 'center', lineHeight: 22, marginBottom: 30, paddingHorizontal: 10 },
-  infoCard: { width: '100%', padding: 20, backgroundColor: '#F4F6F8', borderRadius: 18, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 35, gap: 12 },
+  title: { fontSize: 22, fontWeight: '800', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 12, textAlign: 'center' },
+  subtitle: { fontSize: 14, color: theme.colors.lightText, fontFamily: 'Outfit', textAlign: 'center', lineHeight: 22, marginBottom: 30, paddingHorizontal: 10 },
+  infoCard: { width: '100%', padding: 20, backgroundColor: theme.colors.warmWhite, borderRadius: 18, borderWidth: 1, borderColor: theme.colors.border, marginBottom: 35, gap: 12 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  infoLabel: { fontSize: 13, color: '#7E8B97', fontFamily: 'Outfit', fontWeight: '500' },
-  infoValue: { fontSize: 14, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  infoLabel: { fontSize: 13, color: theme.colors.lightText, fontFamily: 'Outfit', fontWeight: '500' },
+  infoValue: { fontSize: 14, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   btnRow: { width: '100%', flexDirection: 'column', gap: 12 },
-  trackBtn: { backgroundColor: '#0F5B35', borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', width: '100%' },
+  trackBtn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', width: '100%' },
   trackBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
-  homeBtn: { backgroundColor: '#FFFFFF', borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#0F5B35', width: '100%' },
-  homeBtnText: { color: '#0F5B35', fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
+  homeBtn: { backgroundColor: '#FFFFFF', borderRadius: 16, height: 52, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: theme.colors.primaryGreen, width: '100%' },
+  homeBtnText: { color: theme.colors.primaryGreen, fontSize: 16, fontWeight: '700', fontFamily: 'Outfit' },
 });

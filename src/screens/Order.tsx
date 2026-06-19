@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, Modal, TextInput, Alert, ActivityIndicator } from 'react-native';
 import Svg, { Path, Line, Polyline, Circle } from 'react-native-svg';
@@ -40,7 +41,7 @@ export const Order: React.FC = () => {
       <components.SafeAreaView>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}><Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" /></Svg>
+            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}><Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" /></Svg>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Your Cart</Text>
           <View style={{ width: 40 }} />
@@ -108,7 +109,7 @@ export const Order: React.FC = () => {
     <components.SafeAreaView>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}><Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" /></Svg>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}><Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" /></Svg>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Your Cart</Text>
         <View style={{ width: 40 }} />
@@ -141,18 +142,18 @@ export const Order: React.FC = () => {
           <TextInput
             style={{
               borderWidth: 1,
-              borderColor: '#E2E8F0',
+              borderColor: theme.colors.border,
               borderRadius: 12,
               padding: 12,
               fontSize: 14,
-              color: '#1E2022',
+              color: theme.colors.primaryText,
               fontFamily: 'Outfit',
               backgroundColor: '#F8FAFC',
               textAlignVertical: 'top',
               height: 52,
             }}
             placeholder="Enter street address, flat number, building"
-            placeholderTextColor="#7E8B97"
+            placeholderTextColor={theme.colors.lightText}
             value={addressInput}
             onChangeText={setAddressInput}
             multiline
@@ -171,9 +172,9 @@ export const Order: React.FC = () => {
               <Text style={[styles.billValue, { color: '#4CAF50' }]}>-₹{discountAmount}</Text>
             </View>
           )}
-          <View style={[styles.billRow, { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#E2E8F0' }]}>
-            <Text style={[styles.billLabel, { fontWeight: '700', color: '#1E2022', fontSize: 16 }]}>To Pay</Text>
-            <Text style={[styles.billValue, { color: '#0F5B35', fontWeight: '700', fontSize: 16 }]}>₹{toPay}</Text>
+          <View style={[styles.billRow, { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: theme.colors.border }]}>
+            <Text style={[styles.billLabel, { fontWeight: '700', color: theme.colors.primaryText, fontSize: 16 }]}>To Pay</Text>
+            <Text style={[styles.billValue, { color: theme.colors.primaryGreen, fontWeight: '700', fontSize: 16 }]}>₹{toPay}</Text>
           </View>
         </View>
 
@@ -206,7 +207,7 @@ export const Order: React.FC = () => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Payment Method</Text>
               <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
-                <Text style={{ fontSize: 18, color: '#7E8B97', fontWeight: '700' }}>✕</Text>
+                <Text style={{ fontSize: 18, color: theme.colors.lightText, fontWeight: '700' }}>✕</Text>
               </TouchableOpacity>
             </View>
 
@@ -252,40 +253,40 @@ export const Order: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   headerBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
   emptyIcon: { fontSize: 50, marginBottom: 20 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1E2022', marginBottom: 8, fontFamily: 'Outfit' },
-  emptySubtitle: { fontSize: 14, color: '#7E8B97', marginBottom: 24, fontFamily: 'Outfit', textAlign: 'center' },
-  browseBtn: { backgroundColor: '#0F5B35', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: theme.colors.primaryText, marginBottom: 8, fontFamily: 'Outfit' },
+  emptySubtitle: { fontSize: 14, color: theme.colors.lightText, marginBottom: 24, fontFamily: 'Outfit', textAlign: 'center' },
+  browseBtn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
   browseBtnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600', fontFamily: 'Outfit' },
-  cartItem: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 12, borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 16 },
+  cartItem: { flexDirection: 'row', alignItems: 'center', gap: 16, padding: 12, borderRadius: 16, borderWidth: 1, borderColor: theme.colors.border, marginBottom: 16 },
   itemImage: { width: 65, height: 65, borderRadius: 12 },
-  itemName: { fontSize: 15, fontWeight: '700', color: '#1E2022', marginBottom: 4, fontFamily: 'Outfit' },
-  itemPrice: { fontSize: 14, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
-  quantityControl: { flexDirection: 'row', alignItems: 'center', width: 90, height: 32, borderRadius: 8, borderWidth: 1.5, borderColor: '#0F5B35', paddingHorizontal: 6, justifyContent: 'space-between' },
+  itemName: { fontSize: 15, fontWeight: '700', color: theme.colors.primaryText, marginBottom: 4, fontFamily: 'Outfit' },
+  itemPrice: { fontSize: 14, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
+  quantityControl: { flexDirection: 'row', alignItems: 'center', width: 90, height: 32, borderRadius: 8, borderWidth: 1.5, borderColor: theme.colors.primaryGreen, paddingHorizontal: 6, justifyContent: 'space-between' },
   qtyBtn: { padding: 2 },
-  qtyBtnText: { fontSize: 18, fontWeight: '700', color: '#0F5B35' },
-  qtyText: { fontSize: 13, fontWeight: '700', color: '#0F5B35', fontFamily: 'Outfit' },
-  billCard: { padding: 20, borderRadius: 18, backgroundColor: '#F4F6F8', borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 25 },
-  billTitle: { fontSize: 16, fontWeight: '700', color: '#1E2022', marginBottom: 14, fontFamily: 'Outfit' },
+  qtyBtnText: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryGreen },
+  qtyText: { fontSize: 13, fontWeight: '700', color: theme.colors.primaryGreen, fontFamily: 'Outfit' },
+  billCard: { padding: 20, borderRadius: 18, backgroundColor: theme.colors.warmWhite, borderWidth: 1, borderColor: theme.colors.border, marginBottom: 25 },
+  billTitle: { fontSize: 16, fontWeight: '700', color: theme.colors.primaryText, marginBottom: 14, fontFamily: 'Outfit' },
   billRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  billLabel: { fontSize: 14, color: '#7E8B97', fontFamily: 'Outfit' },
-  billValue: { fontSize: 14, fontWeight: '600', color: '#1E2022', fontFamily: 'Outfit' },
-  checkoutBtn: { height: 52, borderRadius: 16, backgroundColor: '#0F5B35', alignItems: 'center', justifyContent: 'center' },
+  billLabel: { fontSize: 14, color: theme.colors.lightText, fontFamily: 'Outfit' },
+  billValue: { fontSize: 14, fontWeight: '600', color: theme.colors.primaryText, fontFamily: 'Outfit' },
+  checkoutBtn: { height: 52, borderRadius: 16, backgroundColor: theme.colors.primaryGreen, alignItems: 'center', justifyContent: 'center' },
   checkoutBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: 'Outfit' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   modalSheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
-  paymentOption: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 16, borderWidth: 1.5, borderColor: '#E2E8F0', marginBottom: 12 },
-  paymentOptionActive: { borderColor: '#0F5B35', backgroundColor: 'rgba(15,91,53,0.02)' },
-  paymentLabel: { fontSize: 15, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit', marginBottom: 2 },
-  radioOuter: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: '#7E8B97', alignItems: 'center', justifyContent: 'center' },
-  radioOuterActive: { borderColor: '#0F5B35' },
-  radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#0F5B35' },
-  payBtn: { height: 52, borderRadius: 16, backgroundColor: '#0F5B35', alignItems: 'center', justifyContent: 'center' },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
+  paymentOption: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 16, borderWidth: 1.5, borderColor: theme.colors.border, marginBottom: 12 },
+  paymentOptionActive: { borderColor: theme.colors.primaryGreen, backgroundColor: 'rgba(15,91,53,0.02)' },
+  paymentLabel: { fontSize: 15, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit', marginBottom: 2 },
+  radioOuter: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: theme.colors.lightText, alignItems: 'center', justifyContent: 'center' },
+  radioOuterActive: { borderColor: theme.colors.primaryGreen },
+  radioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: theme.colors.primaryGreen },
+  payBtn: { height: 52, borderRadius: 16, backgroundColor: theme.colors.primaryGreen, alignItems: 'center', justifyContent: 'center' },
   payBtnText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: 'Outfit' },
 });

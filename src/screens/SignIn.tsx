@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -91,16 +92,16 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20, paddingBottom: 40 },
   logoContainer: { alignItems: 'center', marginBottom: 20 },
   logo: { width: 180, height: 70 },
-  title: { textAlign: 'center', fontSize: 22, fontWeight: '700', color: '#0F5B35', marginBottom: 8, fontFamily: 'Outfit', textTransform: 'capitalize' },
-  subtitle: { textAlign: 'center', fontSize: 16, marginBottom: 28, color: '#7E8B97', fontFamily: 'Outfit' },
+  title: { textAlign: 'center', fontSize: 22, fontWeight: '700', color: theme.colors.primaryGreen, marginBottom: 8, fontFamily: 'Outfit', textTransform: 'capitalize' },
+  subtitle: { textAlign: 'center', fontSize: 16, marginBottom: 28, color: theme.colors.lightText, fontFamily: 'Outfit' },
   inputMargin: { marginBottom: 15 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 },
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  rememberText: { fontSize: 14, color: '#1E2022', marginLeft: 8, fontFamily: 'Outfit' },
+  rememberText: { fontSize: 14, color: theme.colors.primaryText, marginLeft: 8, fontFamily: 'Outfit' },
   forgotText: { fontSize: 14, color: '#FE724E', fontFamily: 'Outfit' },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24, gap: 4 },
-  footerText: { color: '#1E2022', fontFamily: 'Outfit' },
-  signupLink: { color: '#0F5B35', fontWeight: '500', fontFamily: 'Outfit' },
+  footerText: { color: theme.colors.primaryText, fontFamily: 'Outfit' },
+  signupLink: { color: theme.colors.primaryGreen, fontWeight: '500', fontFamily: 'Outfit' },
   requirementsContainer: {
     backgroundColor: '#F4F9F6',
     borderWidth: 1,
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
   requirementsTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#0F5B35',
+    color: theme.colors.primaryGreen,
     marginBottom: 6,
     fontFamily: 'Outfit',
   },
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   unmetText: {
-    color: '#7E8B97',
+    color: theme.colors.lightText,
   },
   errorText: {
     color: '#FF3B30',

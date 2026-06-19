@@ -1,3 +1,4 @@
+import { theme } from '@/theme/theme';
 import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import Svg, { Line, Polyline } from 'react-native-svg';
@@ -17,7 +18,7 @@ export const Wishlist: React.FC = () => {
       <components.SafeAreaView>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
               <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
             </Svg>
           </TouchableOpacity>
@@ -49,7 +50,7 @@ export const Wishlist: React.FC = () => {
       {/* Header bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.backBtn}>
-          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#1E2022" strokeWidth={2.5}>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={theme.colors.primaryText} strokeWidth={2.5}>
             <Line x1={19} y1={12} x2={5} y2={12} /><Polyline points="12 19 5 12 12 5" />
           </Svg>
         </TouchableOpacity>
@@ -63,7 +64,11 @@ export const Wishlist: React.FC = () => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }: { item: DishType }) => (
           <View style={styles.itemWrapper}>
-            <items.WishlistItem dish={item} />
+            <items.WishlistItem 
+              item={item} 
+              isInWishlist={true} 
+              toggleWishlist={() => stores.useWishlistStore.getState().removeFromWishlist(item)} 
+            />
           </View>
         )}
         contentContainerStyle={styles.listContent}
@@ -76,14 +81,14 @@ export const Wishlist: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#F3F4F5' },
+  header: { height: 60, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: theme.colors.warmWhite },
   backBtn: { padding: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1E2022', fontFamily: 'Outfit' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.primaryText, fontFamily: 'Outfit' },
   emptyContent: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
   emptyIcon: { fontSize: 60, marginBottom: 20 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1E2022', marginBottom: 8, fontFamily: 'Outfit' },
-  emptySubtitle: { fontSize: 14, color: '#7E8B97', marginBottom: 24, textAlign: 'center', fontFamily: 'Outfit', lineHeight: 20 },
-  btn: { backgroundColor: '#0F5B35', borderRadius: 16, paddingHorizontal: 28, paddingVertical: 14 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: theme.colors.primaryText, marginBottom: 8, fontFamily: 'Outfit' },
+  emptySubtitle: { fontSize: 14, color: theme.colors.lightText, marginBottom: 24, textAlign: 'center', fontFamily: 'Outfit', lineHeight: 20 },
+  btn: { backgroundColor: theme.colors.primaryGreen, borderRadius: 16, paddingHorizontal: 28, paddingVertical: 14 },
   btnText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600', fontFamily: 'Outfit' },
   listContent: { padding: 20, gap: 16 },
   itemWrapper: { width: '100%' },
