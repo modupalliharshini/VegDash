@@ -377,20 +377,109 @@ export const Checkout: React.FC = () => {
     };
   }, [orderId]);
 
-  const getStepStatus = (stepName: string, currentStatus: string) => {
-    const statusOrder = ['placed', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'delivered'];
-    const currentIdx = statusOrder.indexOf(currentStatus);
-    const stepIdx = statusOrder.indexOf(stepName);
+  const calculateETA = () => {
+    if (!order) return '-- min';
+    if (order.orderStatus === 'delivered') return '0 min';
+    if (order.orderStatus === 'cancelled') return '-- min';
+    
+    let localParsedDriver: any = order.driver;
+    if (order.driver && typeof order.driver === 'string') {
+      try {
+        localParsedDriver = JSON.parse(order.driver);
+      } catch (_) {}
+    }
 
+    // If rider is out for delivery or arriving, calculate distance to customer
+    if (order.orderStatus === 'out_for_delivery' || order.orderStatus === 'arriving') {
+      const rLat = localParsedDriver?.location?.lat || 17.4483;
+      const rLng = localParsedDriver?.location?.lng || 78.3741;
+      const cLat = 17.4435;
+      const cLng = 78.3812;
+      
+      const R = 6371; // km
+      const dLat = (cLat - rLat) * Math.PI / 180;
+      const dLon = (cLng - rLng) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(rLat * Math.PI / 180) * Math.cos(cLat * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c;
+      
+      const minutes = Math.max(1, Math.round(distance * 8.5));
+      return `${minutes} min`;
+    }
+    
+    // If rider is ready or assigned, calculate total distance (rider -> restaurant -> customer)
+    if (order.orderStatus === 'rider_assigned' || order.orderStatus === 'ready_for_pickup') {
+      const rLat = localParsedDriver?.location?.lat || 17.4520;
+      const rLng = localParsedDriver?.location?.lng || 78.3680;
+      const restLat = 17.4483;
+      const restLng = 78.3741;
+      const cLat = 17.4435;
+      const cLng = 78.3812;
+      
+      const R = 6371;
+      const dLat1 = (restLat - rLat) * Math.PI / 180;
+      const dLon1 = (restLng - rLng) * Math.PI / 180;
+      const a1 =
+        Math.sin(dLat1 / 2) * Math.sin(dLat1 / 2) +
+        Math.cos(rLat * Math.PI / 180) * Math.cos(restLat * Math.PI / 180) *
+        Math.sin(dLon1 / 2) * Math.sin(dLon1 / 2);
+      const c1 = 2 * Math.atan2(Math.sqrt(a1), Math.sqrt(1 - a1));
+      const distanceToStore = R * c1;
+      
+      const dLat2 = (cLat - restLat) * Math.PI / 180;
+      const dLon2 = (cLng - restLng) * Math.PI / 180;
+      const a2 =
+        Math.sin(dLat2 / 2) * Math.sin(dLat2 / 2) +
+        Math.cos(restLat * Math.PI / 180) * Math.cos(cLat * Math.PI / 180) *
+        Math.sin(dLon2 / 2) * Math.sin(dLon2 / 2);
+      const c2 = 2 * Math.atan2(Math.sqrt(a2), Math.sqrt(1 - a2));
+      const distanceStoreToCust = R * c2;
+      
+      const totalDistance = distanceToStore + distanceStoreToCust;
+      const minutes = Math.max(2, Math.round(totalDistance * 8.5));
+      return `${minutes} min`;
+    }
+    
+    return '12 min';
+  };
+
+  const getStepStatus = (stepName: string, currentStatus: string) => {
     if (currentStatus === 'cancelled') return 'pending';
+
+    const statusOrder = ['placed', 'preparing', 'ready_for_pickup', 'rider_assigned', 'out_for_delivery', 'arriving', 'delivered'];
+    
+    let normalizedCurrentStatus = currentStatus;
+    let normalizedStepName = stepName;
+
+    if (currentStatus === 'rider_assigned') {
+      normalizedCurrentStatus = 'ready_for_pickup';
+    }
+    if (currentStatus === 'arriving') {
+      normalizedCurrentStatus = 'out_for_delivery';
+    }
+
+    const currentIdx = statusOrder.indexOf(normalizedCurrentStatus);
+    const stepIdx = statusOrder.indexOf(normalizedStepName);
+
     if (stepIdx < currentIdx) return 'completed';
     if (stepIdx === currentIdx) return 'active';
     return 'pending';
   };
 
   const getStepTime = (stepName: string, statusHistory: any[]) => {
-    const record = statusHistory?.find((h) => h.status === stepName);
-    if (!record) return '09:35 AM'; // fallback default for beautiful timeline match
+    let statusesToMatch = [stepName];
+    if (stepName === 'ready_for_pickup') {
+      statusesToMatch = ['ready_for_pickup', 'rider_assigned'];
+    }
+    if (stepName === 'out_for_delivery') {
+      statusesToMatch = ['out_for_delivery', 'arriving'];
+    }
+    
+    const record = statusHistory?.find((h) => statusesToMatch.includes(h.status));
+    if (!record) return '09:35 AM';
     try {
       const date = new Date(record.timestamp);
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -398,6 +487,7 @@ export const Checkout: React.FC = () => {
       return '';
     }
   };
+
 
   if (loading) {
     return (
@@ -498,8 +588,8 @@ export const Checkout: React.FC = () => {
   const steps = [
     { key: 'placed', label: 'Order Confirmed', desc: "We've received your order", icon: '✓' },
     { key: 'preparing', label: 'Preparing Your Order', desc: 'Our chef is preparing your fresh & pure veg meal', icon: '🍲' },
-    { key: 'ready_for_pickup', label: 'Order Picked Up', desc: 'Your order is picked up & on the way', icon: '🛍️' },
-    { key: 'out_for_delivery', label: 'Out for Delivery', desc: 'Our delivery partner is on the way to you', icon: '🏍️' },
+    { key: 'ready_for_pickup', label: 'Order Ready at Restaurant', desc: 'Rider is arriving to pick up your order', icon: '🛍️' },
+    { key: 'out_for_delivery', label: 'Order Picked Up', desc: 'Your order is picked up & on the way', icon: '🏍️' },
   ];
 
   const orderCode = order._id.length > 6 ? order._id.substring(order._id.length - 6).toUpperCase() : order._id.toUpperCase();
@@ -554,11 +644,13 @@ export const Checkout: React.FC = () => {
             stage={parsedDriver?.location?.stage || 'to_customer'}
           />
           {/* Floating ETA Tag */}
-          <View style={styles.etaFloatingTag}>
-            <Text style={styles.etaText}>8 min</Text>
-            <Text style={styles.etaSubtext}>away</Text>
-            <View style={styles.etaTriangle} />
-          </View>
+          {order.orderStatus !== 'delivered' && order.orderStatus !== 'cancelled' && (
+            <View style={styles.etaFloatingTag}>
+              <Text style={styles.etaText}>{calculateETA()}</Text>
+              <Text style={styles.etaSubtext}>away</Text>
+              <View style={styles.etaTriangle} />
+            </View>
+          )}
         </View>
 
         {/* Timeline Progress List Card */}
@@ -597,7 +689,7 @@ export const Checkout: React.FC = () => {
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'flex-end', minWidth: 90 }}>
                   {isActive && step.key === 'out_for_delivery' ? (
                     <>
-                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#C7A96B', fontFamily: 'Inter' }}>8 min away</Text>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#C7A96B', fontFamily: 'Inter' }}>{calculateETA()} away</Text>
                       <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#C7A96B" strokeWidth={3} style={{ transform: [{ rotate: '45deg' }] }}>
                         <Circle cx={12} cy={12} r={10} strokeDasharray="30 20" strokeLinecap="round" />
                       </Svg>
