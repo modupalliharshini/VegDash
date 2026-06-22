@@ -169,15 +169,11 @@ export const Profile: React.FC = () => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         {/* ── Profile Card ─────────────────────────────────── */}
         <View style={s.profileCard}>
-          {isLoggedIn ? (
-            <Image source={{ uri: user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150' }} style={s.avatar} />
-          ) : (
-            <View style={s.avatarPlaceholder}>
-              <Svg width={40} height={40} viewBox="0 0 24 24" fill="none" stroke={C.sageGreen} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                <Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><Circle cx={12} cy={7} r={4} />
-              </Svg>
-            </View>
-          )}
+          <View style={s.avatarPlaceholder}>
+            <Text style={{ color: C.primaryGreen, fontSize: 20, fontWeight: '800', fontFamily: Platform.OS === 'web' ? 'Inter' : 'sans-serif' }}>
+              {isLoggedIn && user?.name ? user.name.substring(0, 2).toUpperCase() : 'VD'}
+            </Text>
+          </View>
           <View style={{ marginLeft: 16, flex: 1 }}>
             <Text style={s.profileName}>{isLoggedIn && user ? user.name : 'Guest User'}</Text>
             {isLoggedIn && user ? (
@@ -405,7 +401,7 @@ const s = StyleSheet.create({
 
   profileCard:       { flexDirection: 'row', alignItems: 'center', padding: 20, backgroundColor: C.card, borderBottomWidth: 1, borderBottomColor: C.divider },
   avatar:            { width: 70, height: 70, borderRadius: 35, borderWidth: 2, borderColor: C.border },
-  avatarPlaceholder: { width: 70, height: 70, borderRadius: 35, backgroundColor: C.warmWhite, alignItems: 'center', justifyContent: 'center' },
+  avatarPlaceholder: { width: 70, height: 70, borderRadius: 35, backgroundColor: 'rgba(11,77,58,0.08)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.border },
   profileName:       { fontSize: 18, fontWeight: '700', color: C.primaryText, fontFamily: Platform.OS === 'web' ? 'Playfair Display' : 'serif', marginBottom: 4 },
   profileSub:        { fontSize: 13, color: C.secondaryText },
   editBtn:           { marginLeft: 'auto' as any, padding: 8 },

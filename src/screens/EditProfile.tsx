@@ -73,13 +73,11 @@ export const EditProfile: React.FC = () => {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         {/* Avatar Display */}
         <View style={styles.avatarSection}>
-          <Image
-            source={{ uri: user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop' }}
-            style={styles.avatar}
-          />
-          <TouchableOpacity style={styles.changePicBtn}>
-            <Text style={styles.changePicText}>Change Picture</Text>
-          </TouchableOpacity>
+          <View style={[styles.avatar, { backgroundColor: 'rgba(11,77,58,0.08)', alignItems: 'center', justifyContent: 'center' }]}>
+            <Text style={{ color: theme.colors.primaryGreen, fontSize: 28, fontWeight: '800', fontFamily: 'Outfit' }}>
+              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'VD'}
+            </Text>
+          </View>
         </View>
 
         {/* Input fields section */}

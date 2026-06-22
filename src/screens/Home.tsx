@@ -35,10 +35,10 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ─────────────────────────── Logo SVG ────────────────────────────────────────
 const VegDashLogo = () => (
-  <View style={{ paddingLeft: 4, height: 42, justifyContent: 'center' }}>
+  <View style={{ alignItems: 'flex-start' }}>
     <Image 
       source={require('../assets/images/logo.png')} 
-      style={{ width: 110, height: 42 }} 
+      style={{ width: 140, height: 52, alignSelf: 'flex-start', marginLeft: -16, marginTop: -6 }} 
       resizeMode="contain" 
     />
   </View>
@@ -98,19 +98,57 @@ export const Home: React.FC = () => {
 
   const handleGetLiveLocation = () => {
     setFetchingLocation(true);
-    let count = 0;
-    const iv = setInterval(() => {
-      setSimulatedCoords({ lat: 17.42 + Math.random() * 0.04, lng: 78.35 + Math.random() * 0.04 });
-      if (++count >= 8) clearInterval(iv);
-    }, 150);
-    setTimeout(async () => {
-      const addrs = ['506, Road No. 36, Jubilee Hills, Hyderabad', 'Flat 12B, My Home Bhooja, Hitec City, Hyderabad', 'Plot 45, DLF Cyber City, Gachibowli, Hyderabad'];
-      const sel = addrs[Math.floor(Math.random() * addrs.length)];
-      setLocationText(sel);
-      await AsyncStorage.setItem('vegdash_user_location', sel);
-      setFetchingLocation(false);
-      setShowLocationModal(false);
-    }, 1500);
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setSimulatedCoords({ lat: latitude, lng: longitude });
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`);
+            const data = await res.json();
+            if (data && data.display_name) {
+              const parts = data.display_name.split(',');
+              const formatted = parts.slice(0, 3).join(',').trim();
+              setLocationText(formatted);
+              await AsyncStorage.setItem('vegdash_user_location', formatted);
+            } else {
+              const fallback = `DLF Cyber City, Gachibowli, Hyderabad`;
+              setLocationText(fallback);
+              await AsyncStorage.setItem('vegdash_user_location', fallback);
+            }
+          } catch (err) {
+            console.error('Reverse geocode error:', err);
+            const fallback = `DLF Cyber City, Gachibowli, Hyderabad`;
+            setLocationText(fallback);
+            await AsyncStorage.setItem('vegdash_user_location', fallback);
+          } finally {
+            setFetchingLocation(false);
+            setShowLocationModal(false);
+          }
+        },
+        (error) => {
+          console.error('GPS error:', error);
+          setTimeout(async () => {
+            const addrs = ['506, Road No. 36, Jubilee Hills, Hyderabad', 'Flat 12B, My Home Bhooja, Hitec City, Hyderabad', 'Plot 45, DLF Cyber City, Gachibowli, Hyderabad'];
+            const sel = addrs[Math.floor(Math.random() * addrs.length)];
+            setLocationText(sel);
+            await AsyncStorage.setItem('vegdash_user_location', sel);
+            setFetchingLocation(false);
+            setShowLocationModal(false);
+          }, 1000);
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
+      );
+    } else {
+      setTimeout(async () => {
+        const addrs = ['Plot 45, DLF Cyber City, Gachibowli, Hyderabad'];
+        const sel = addrs[0];
+        setLocationText(sel);
+        await AsyncStorage.setItem('vegdash_user_location', sel);
+        setFetchingLocation(false);
+        setShowLocationModal(false);
+      }, 1000);
+    }
   };
 
   const handleSaveManualLocation = async () => {
@@ -507,8 +545,8 @@ const s = StyleSheet.create({
   scroll: { flex: 1 },
 
   // Header
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginTop: 10 },
-  locationBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 2 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingLeft: 8, paddingRight: 20, marginTop: 10 },
+  locationBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 8 },
   locLine1: { fontSize: 10, fontWeight: '500', color: theme.colors.secondaryText, textAlign: 'right', fontFamily: Platform.OS === 'web' ? 'Inter' : 'sans-serif' },
   locLine2: { fontSize: 10.5, fontWeight: '700', color: theme.colors.primaryText, textAlign: 'right', fontFamily: Platform.OS === 'web' ? 'Inter' : 'sans-serif' },
 
