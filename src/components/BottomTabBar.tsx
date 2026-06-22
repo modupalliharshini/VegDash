@@ -26,7 +26,7 @@ export const BottomTabBar: React.FC = () => {
   const isHomeRoute = activeRoute === constants.routes.HOME;
 
   return (
-    <View style={isHomeRoute ? { paddingHorizontal: 10, paddingBottom: Math.max(insets.bottom, 6) } : { width: '100%' }}>
+    <View style={{ paddingHorizontal: 10, paddingBottom: Math.max(insets.bottom, 6), width: '100%' }}>
       {cart.length > 0 && !isCartPage && !isDetailPage && (
         <View style={{ paddingHorizontal: 10, marginBottom: 10 }}>
           <TouchableOpacity
@@ -66,7 +66,7 @@ export const BottomTabBar: React.FC = () => {
       )}
 
       <View
-        style={isHomeRoute ? {
+        style={{
           backgroundColor: '#0A3B2E',
           borderRadius: 25,
           height: 60,
@@ -75,27 +75,12 @@ export const BottomTabBar: React.FC = () => {
           alignItems: 'center',
           elevation: 8,
           ...theme.shadows.boxShadow('#0A3B2E'),
-        } : {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#E2E8F0',
-          height: 58 + Math.max(insets.bottom, 4),
-          paddingBottom: Math.max(insets.bottom, 4),
-          flexDirection: 'row',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          width: '100%',
         }}
       >
         {constants.tabs.map((tab) => {
           const isActive = activeRoute === tab.route;
           
-          let color = 'rgba(255, 255, 255, 0.6)';
-          if (isActive) {
-            color = isHomeRoute ? theme.colors.sageGreen : '#0B4D3A';
-          } else {
-            color = isHomeRoute ? 'rgba(255, 255, 255, 0.6)' : '#64748B';
-          }
+          const color = isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)';
 
           const Icon = tab.icon;
           const displayName = tab.id === 5 && !isLoggedIn ? 'Login' : tab.name;
@@ -131,12 +116,12 @@ export const BottomTabBar: React.FC = () => {
                 >
                   {displayName}
                 </Text>
-                {isActive && !isHomeRoute && (
+                {isActive && (
                   <View 
                     style={{
                       height: 2.5,
                       width: 18,
-                      backgroundColor: '#0B4D3A',
+                      backgroundColor: '#FFFFFF',
                       borderRadius: 1.5,
                       marginTop: 3.5,
                       position: 'absolute',
