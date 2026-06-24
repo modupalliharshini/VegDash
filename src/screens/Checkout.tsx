@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, TextInput, Platform, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, StyleSheet, ActivityIndicator, TextInput, Platform, Dimensions, KeyboardAvoidingView } from 'react-native';
 import Svg, { Line, Polyline, Polygon, Path, Circle, G } from 'react-native-svg';
 import { hooks } from '@/hooks';
 import { constants } from '@/constants';
@@ -223,6 +223,40 @@ export const Checkout: React.FC = () => {
   const { navigate, params } = hooks.useRouter();
   const orderId = (params as any)?.orderId || (params as any)?.state?.orderId;
 
+  const parseDatabaseDate = (dateStr: any): Date => {
+    if (!dateStr) return new Date(NaN);
+    if (typeof dateStr !== 'string') {
+      return new Date(dateStr);
+    }
+    const sanitized = dateStr.trim();
+    const match = sanitized.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(?:Z|([+-]\d{2})(?::?(\d{2}))?)?$/);
+    if (match) {
+      const yr = parseInt(match[1], 10);
+      const mon = parseInt(match[2], 10);
+      const day = parseInt(match[3], 10);
+      const hr = parseInt(match[4], 10);
+      const min = parseInt(match[5], 10);
+      const sec = parseInt(match[6], 10);
+      
+      const fraction = match[7] || "0";
+      const ms = parseInt((fraction + "000").substring(0, 3), 10);
+      
+      let offsetMs = 0;
+      const tzHourStr = match[8];
+      const tzMinStr = match[9];
+      if (tzHourStr) {
+        const sign = tzHourStr[0] === '-' ? -1 : 1;
+        const tzHours = parseInt(tzHourStr.substring(1), 10);
+        const tzMins = tzMinStr ? parseInt(tzMinStr, 10) : 0;
+        offsetMs = sign * (tzHours * 60 + tzMins) * 60 * 1000;
+      }
+      
+      return new Date(Date.UTC(yr, mon - 1, day, hr, min, sec, ms) - offsetMs);
+    }
+    return new Date(sanitized);
+  };
+
+
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -239,7 +273,7 @@ export const Checkout: React.FC = () => {
     }
 
     const checkTime = () => {
-      const createdTime = new Date(order.createdAt).getTime();
+      const createdTime = parseDatabaseDate(order.createdAt).getTime();
       const elapsedSeconds = Math.floor((Date.now() - createdTime) / 1000);
       const limit = 60; 
       const left = Math.max(0, limit - elapsedSeconds);
@@ -252,7 +286,7 @@ export const Checkout: React.FC = () => {
   }, [order]);
 
   const handleCancelOrder = async () => {
-    const createdTime = new Date(order.createdAt).getTime();
+    const createdTime = parseDatabaseDate(order.createdAt).getTime();
     const elapsedSeconds = Math.floor((Date.now() - createdTime) / 1000);
     if (elapsedSeconds > 60 || order.orderStatus !== 'placed') {
       alert('The order cannot be cancelled now.');
@@ -457,9 +491,6 @@ export const Checkout: React.FC = () => {
     if (currentStatus === 'rider_assigned') {
       normalizedCurrentStatus = 'ready_for_pickup';
     }
-    if (currentStatus === 'arriving') {
-      normalizedCurrentStatus = 'out_for_delivery';
-    }
 
     const currentIdx = statusOrder.indexOf(normalizedCurrentStatus);
     const stepIdx = statusOrder.indexOf(normalizedStepName);
@@ -474,14 +505,19 @@ export const Checkout: React.FC = () => {
     if (stepName === 'ready_for_pickup') {
       statusesToMatch = ['ready_for_pickup', 'rider_assigned'];
     }
-    if (stepName === 'out_for_delivery') {
-      statusesToMatch = ['out_for_delivery', 'arriving'];
-    }
     
     const record = statusHistory?.find((h) => statusesToMatch.includes(h.status));
-    if (!record) return '09:35 AM';
+    if (!record) {
+      if (stepName === 'placed' && order?.createdAt) {
+        try {
+          const date = parseDatabaseDate(order.createdAt);
+          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } catch (_) {}
+      }
+      return '';
+    }
     try {
-      const date = new Date(record.timestamp);
+      const date = parseDatabaseDate(record.timestamp);
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } catch (_) {
       return '';
@@ -540,11 +576,7 @@ export const Checkout: React.FC = () => {
     
     if (isCompleted || isActive) {
       borderWidth = 0;
-      if (stepKey === 'out_for_delivery') {
-        bgColor = '#FAF8F5'; // beige/peach background for scooter icon
-      } else {
-        bgColor = '#0B4D3A'; // dark green background
-      }
+      bgColor = '#0B4D3A'; // dark green background
     }
     
     return (
@@ -572,12 +604,24 @@ export const Checkout: React.FC = () => {
           </Svg>
         )}
         {stepKey === 'out_for_delivery' && (
-          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={(isCompleted || isActive) ? '#C7A96B' : '#8A8A8A'} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={(isCompleted || isActive) ? '#FFFFFF' : '#8A8A8A'} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
             <Circle cx={5.5} cy={18} r={2.5} />
             <Circle cx={18.5} cy={18} r={2.5} />
             <Path d="M3 10h11v8H3z" />
             <Path d="M14 12h5l2.5 3V18h-7.5z" />
             <Path d="M8 6h5" />
+          </Svg>
+        )}
+        {stepKey === 'arriving' && (
+          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={(isCompleted || isActive) ? '#FFFFFF' : '#8A8A8A'} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <Path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <Circle cx={12} cy={10} r={3} />
+          </Svg>
+        )}
+        {stepKey === 'delivered' && (
+          <Svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={(isCompleted || isActive) ? '#FFFFFF' : '#8A8A8A'} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <Path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <Polyline points="22 4 12 14.01 9 11.01" />
           </Svg>
         )}
       </View>
@@ -590,20 +634,50 @@ export const Checkout: React.FC = () => {
     { key: 'preparing', label: 'Preparing Your Order', desc: 'Our chef is preparing your fresh & pure veg meal', icon: '🍲' },
     { key: 'ready_for_pickup', label: 'Order Ready at Restaurant', desc: 'Rider is arriving to pick up your order', icon: '🛍️' },
     { key: 'out_for_delivery', label: 'Order Picked Up', desc: 'Your order is picked up & on the way', icon: '🏍️' },
+    { key: 'arriving', label: 'Order Arriving', desc: 'Rider is arriving at your doorstep', icon: '📍' },
+    { key: 'delivered', label: 'Order Delivered', desc: 'Enjoy your fresh & pure veg meal!', icon: '🎁' },
   ];
+
+  const getHeaderSubtitle = () => {
+    if (!order) return '';
+    switch (order.orderStatus) {
+      case 'placed':
+        return "We've received your order.";
+      case 'preparing':
+        return "We're preparing your order with care.";
+      case 'ready_for_pickup':
+      case 'rider_assigned':
+        return "Rider is arriving at restaurant.";
+      case 'out_for_delivery':
+        return "Your order is picked up & on the way.";
+      case 'arriving':
+        return "Rider is arriving at your doorstep!";
+      case 'delivered':
+        return "Order delivered successfully.";
+      case 'cancelled':
+        return "This order has been cancelled.";
+      default:
+        return "We're preparing your order with care.";
+    }
+  };
 
   const orderCode = order._id.length > 6 ? order._id.substring(order._id.length - 6).toUpperCase() : order._id.toUpperCase();
 
   return (
     <components.SafeAreaView style={styles.container}>
-      {/* Header bar */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        {/* Header bar */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigate(-1)} style={styles.headerBtn}>
           <Text style={{ fontSize: 20, color: theme.colors.primaryText }}>←</Text>
         </TouchableOpacity>
         <View style={{ alignItems: 'center' }}>
           <Text style={styles.headerTitle}>Order Tracking</Text>
-          <Text style={styles.headerSubtitle}>We're preparing your order with care.</Text>
+          <Text style={styles.headerSubtitle}>{getHeaderSubtitle()}</Text>
         </View>
         <TouchableOpacity style={styles.supportBadge} onPress={() => navigate(constants.routes.FAQ)}>
           <SupportIcon />
@@ -687,7 +761,7 @@ export const Checkout: React.FC = () => {
 
                 {/* Time & End Checkmark Status */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'flex-end', minWidth: 90 }}>
-                  {isActive && step.key === 'out_for_delivery' ? (
+                  {isActive && (step.key === 'out_for_delivery' || step.key === 'arriving') ? (
                     <>
                       <Text style={{ fontSize: 11, fontWeight: '700', color: '#C7A96B', fontFamily: 'Inter' }}>{calculateETA()} away</Text>
                       <Svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#C7A96B" strokeWidth={3} style={{ transform: [{ rotate: '45deg' }] }}>
@@ -798,6 +872,7 @@ export const Checkout: React.FC = () => {
         </View>
 
       </ScrollView>
+      </KeyboardAvoidingView>
     </components.SafeAreaView>
   );
 };
