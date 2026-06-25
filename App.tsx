@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { View, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, ActivityIndicator, Alert, Platform, Animated } from 'react-native';
 
 // Web polyfill for Alert.alert to make confirmation dialogs work on React Native Web
 if (Platform.OS === 'web') {
@@ -37,41 +37,25 @@ import { useAuthStore } from '@/stores/useAuthStore';
 const queryClient = new QueryClient();
 const Stack = createNativeStackNavigator();
 
-export default function App() {
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    const unsubFinishHydration = useAuthStore.persist.onFinishHydration(() => {
-      setHydrated(true);
-    });
-
-    if (useAuthStore.persist.hasHydrated()) {
-      setHydrated(true);
-    }
-
-    return () => {
-      unsubFinishHydration();
-    };
-  }, []);
-
-  if (!hydrated) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
-        <ActivityIndicator size="large" color="#0F5B35" />
-      </View>
-    );
-  }
-
+function AppLayout({ borderCol }: { borderCol: any }) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SafeAreaProvider>
+    <View style={{
+      flex: 1,
+      backgroundColor: '#0A3B2E',
+    }}>
+      <Animated.View style={{ 
+        flex: 1, 
+        borderWidth: 8, 
+        borderColor: borderCol, 
+        borderRadius: Platform.OS === 'web' ? 0 : 38,
+        overflow: 'hidden',
+        backgroundColor: '#FFFFFF',
+      }}>
         <NavigationContainer>
           <Stack.Navigator
             initialRouteName={constants.routes.HOME}
             screenOptions={{ headerShown: false, animation: 'slide_from_right' }}
           >
-
             <Stack.Screen name={constants.routes.HOME} component={screens.Home} />
             <Stack.Screen name={constants.routes.ONBOARDING} component={screens.Onboarding} />
             <Stack.Screen name={constants.routes.SIGN_IN} component={screens.SignIn} />
@@ -101,6 +85,64 @@ export default function App() {
           <components.Toast />
         </NavigationContainer>
         <StatusBar style="dark" />
+      </Animated.View>
+    </View>
+  );
+}
+
+export default function App() {
+  const [hydrated, setHydrated] = useState(false);
+  const pulseAnim = React.useRef(new Animated.Value(0.55)).current;
+
+  useEffect(() => {
+    const unsubFinishHydration = useAuthStore.persist.onFinishHydration(() => {
+      setHydrated(true);
+    });
+
+    if (useAuthStore.persist.hasHydrated()) {
+      setHydrated(true);
+    }
+
+    return () => {
+      unsubFinishHydration();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1800,
+          useNativeDriver: false,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0.55,
+          duration: 1800,
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
+  }, [hydrated, pulseAnim]);
+
+  const borderCol = pulseAnim.interpolate({
+    inputRange: [0.55, 1],
+    outputRange: ['rgba(199, 169, 107, 0.4)', 'rgba(199, 169, 107, 1)'],
+  });
+
+  if (!hydrated) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+        <ActivityIndicator size="large" color="#0F5B35" />
+      </View>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <AppLayout borderCol={borderCol} />
       </SafeAreaProvider>
     </QueryClientProvider>
   );
