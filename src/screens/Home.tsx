@@ -585,8 +585,30 @@ const s = StyleSheet.create({
 
   // Feature cards
   cardsRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginTop: 20, gap: 10 },
-  featureCard: { flex: 1, backgroundColor: '#FFF', borderRadius: 18, paddingVertical: 16, paddingHorizontal: 6, alignItems: 'center', borderWidth: 1, borderColor: theme.colors.border, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
-  featureIconBg: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(167,184,163,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  featureCard: { 
+    flex: 1, 
+    backgroundColor: '#FFF', 
+    borderRadius: 18, 
+    paddingVertical: 16, 
+    paddingHorizontal: 6, 
+    alignItems: 'center', 
+    borderWidth: 1.5, 
+    borderColor: '#C7A96B', 
+    shadowColor: '#C7A96B', 
+    shadowOffset: { width: 0, height: 3 }, 
+    shadowOpacity: 0.12, 
+    shadowRadius: 6, 
+    elevation: 2 
+  },
+  featureIconBg: { 
+    width: 44, 
+    height: 44, 
+    borderRadius: 22, 
+    backgroundColor: 'rgba(199, 169, 107, 0.12)', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    marginBottom: 10 
+  },
   featureTitle: { fontSize: 12, fontWeight: '700', color: theme.colors.primaryText, textAlign: 'center', fontFamily: Platform.OS === 'web' ? 'Inter' : 'sans-serif', marginBottom: 3 },
   featureDesc: { fontSize: 10, color: theme.colors.secondaryText, textAlign: 'center', lineHeight: 13 },
 
