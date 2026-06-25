@@ -80,7 +80,10 @@ export const BottomTabBar: React.FC = () => {
         {constants.tabs.map((tab) => {
           const isActive = activeRoute === tab.route;
           
-          const color = isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)';
+          let color = isActive ? '#FFFFFF' : 'rgba(255, 255, 255, 0.6)';
+          if (tab.id === 4) {
+            color = isActive ? '#C7A96B' : 'rgba(199, 169, 107, 0.7)';
+          }
 
           const Icon = tab.icon;
           const displayName = tab.id === 5 && !isLoggedIn ? 'Login' : tab.name;
@@ -121,7 +124,7 @@ export const BottomTabBar: React.FC = () => {
                     style={{
                       height: 2.5,
                       width: 18,
-                      backgroundColor: '#FFFFFF',
+                      backgroundColor: color,
                       borderRadius: 1.5,
                       marginTop: 3.5,
                       position: 'absolute',
