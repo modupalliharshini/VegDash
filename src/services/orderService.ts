@@ -194,18 +194,37 @@ export const orderService = {
         .select('*')
         .eq('customer', userId)
         .order('createdAt', { ascending: false });
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         dbOrders = data;
-      } else {
-        dbOrders = await getLocalOrders();
       }
-    } catch (_) {
-      dbOrders = await getLocalOrders();
-    }
+    } catch (_) {}
 
-    let userOrders = dbOrders.filter(o => o.customer === userId);
+    const localOrders = await getLocalOrders();
+    const orderMap = new Map<string, any>();
+
+    localOrders.forEach(o => {
+      if (o && o._id) {
+        orderMap.set(o._id, o);
+      }
+    });
+
+    dbOrders.forEach(o => {
+      if (o && o._id) {
+        const existing = orderMap.get(o._id);
+        if (existing) {
+          orderMap.set(o._id, { ...existing, ...o });
+        } else {
+          orderMap.set(o._id, o);
+        }
+      }
+    });
+
+    const mergedOrders = Array.from(orderMap.values());
+    await saveLocalOrders(mergedOrders);
+
+    let userOrders = mergedOrders.filter(o => o.customer === userId);
     if (userOrders.length === 0) {
-      userOrders = dbOrders;
+      userOrders = mergedOrders;
     }
 
     const populated = userOrders.map(order => {
@@ -247,6 +266,7 @@ export const orderService = {
 
   async getOrderById(id: string) {
     let dbOrder: any = null;
+    let fetchedFromDb = false;
     try {
       const { data, error } = await supabase
         .from('orders')
@@ -255,6 +275,7 @@ export const orderService = {
         .single();
       if (!error && data) {
         dbOrder = data;
+        fetchedFromDb = true;
       } else {
         const local = await getLocalOrders();
         dbOrder = local.find(o => o._id === id);
@@ -266,6 +287,25 @@ export const orderService = {
 
     if (!dbOrder) {
       throw new Error('Order not found');
+    }
+
+    if (fetchedFromDb) {
+      try {
+        const local = await getLocalOrders();
+        const orderMap = new Map<string, any>();
+        local.forEach(o => {
+          if (o && o._id) {
+            orderMap.set(o._id, o);
+          }
+        });
+        const existing = orderMap.get(dbOrder._id);
+        if (existing) {
+          orderMap.set(dbOrder._id, { ...existing, ...dbOrder });
+        } else {
+          orderMap.set(dbOrder._id, dbOrder);
+        }
+        await saveLocalOrders(Array.from(orderMap.values()));
+      } catch (_) {}
     }
 
     const simulated = simulateOrderStatus(dbOrder);

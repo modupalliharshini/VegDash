@@ -46,17 +46,17 @@ export const OrderHistory: React.FC = () => {
   // Sort orders by date descending (latest first)
   const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  // Find the single most recent active order
-  const latestActiveOrder = sortedOrders.find(o => 
+  // Active orders: all orders that are NOT delivered and NOT cancelled
+  const activeOrders = sortedOrders.filter(o => 
     o.status !== 'delivered' && o.status !== 'cancelled' && 
     o.orderStatus !== 'delivered' && o.orderStatus !== 'cancelled'
   );
 
-  // Only the single most recent active order is shown in current tab
-  const activeOrders = latestActiveOrder ? [latestActiveOrder] : [];
-
-  // All other orders go to the past tab
-  const pastOrders = sortedOrders.filter(o => !latestActiveOrder || o._id !== latestActiveOrder._id);
+  // Past orders: all orders that ARE delivered or cancelled
+  const pastOrders = sortedOrders.filter(o => 
+    o.status === 'delivered' || o.status === 'cancelled' || 
+    o.orderStatus === 'delivered' || o.orderStatus === 'cancelled'
+  );
 
   const handleReorder = (orderItems: any[]) => {
     orderItems.forEach((item) => {
